@@ -1,0 +1,39 @@
+[debug] [2020-04-03T14:27:43.316Z] ----------------------------------------------------------------------
+[debug] [2020-04-03T14:27:43.318Z] Command:       /Users/jack/.nvm/versions/node/v10.19.0/bin/node /Users/jack/.nvm/versions/node/v10.19.0/bin/firebase serve
+[debug] [2020-04-03T14:27:43.318Z] CLI Version:   8.0.1
+[debug] [2020-04-03T14:27:43.319Z] Platform:      darwin
+[debug] [2020-04-03T14:27:43.319Z] Node Version:  v10.19.0
+[debug] [2020-04-03T14:27:43.319Z] Time:          Fri Apr 03 2020 07:27:43 GMT-0700 (Pacific Daylight Time)
+[debug] [2020-04-03T14:27:43.319Z] ----------------------------------------------------------------------
+[debug] [2020-04-03T14:27:43.319Z] 
+[debug] [2020-04-03T14:27:43.330Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2020-04-03T14:27:43.330Z] > authorizing via signed-in user
+[debug] [2020-04-03T14:27:43.331Z] [iam] checking project all-scheduler-1a96c for permissions ["firebase.projects.get"]
+[debug] [2020-04-03T14:27:43.333Z] >>> HTTP REQUEST POST https://cloudresourcemanager.googleapis.com/v1/projects/all-scheduler-1a96c:testIamPermissions  
+ {"permissions":["firebase.projects.get"]}
+[debug] [2020-04-03T14:27:43.711Z] <<< HTTP RESPONSE 200 {"content-type":"application/json; charset=UTF-8","vary":"X-Origin, Referer, Origin,Accept-Encoding","date":"Fri, 03 Apr 2020 14:27:43 GMT","server":"ESF","cache-control":"private","x-xss-protection":"0","x-frame-options":"SAMEORIGIN","x-content-type-options":"nosniff","server-timing":"gfet4t7; dur=146","alt-svc":"quic=\":443\"; ma=2592000; v=\"46,43\",h3-Q050=\":443\"; ma=2592000,h3-Q049=\":443\"; ma=2592000,h3-Q048=\":443\"; ma=2592000,h3-Q046=\":443\"; ma=2592000,h3-Q043=\":443\"; ma=2592000,h3-T050=\":443\"; ma=2592000","accept-ranges":"none","transfer-encoding":"chunked"}
+[debug] [2020-04-03T14:27:43.713Z] >>> HTTP REQUEST GET https://firebase.googleapis.com/v1beta1/projects/all-scheduler-1a96c  
+ 
+[debug] [2020-04-03T14:27:43.983Z] <<< HTTP RESPONSE 200 {"content-type":"application/json; charset=UTF-8","vary":"X-Origin, Referer, Origin,Accept-Encoding","date":"Fri, 03 Apr 2020 14:27:43 GMT","server":"ESF","cache-control":"private","x-xss-protection":"0","x-frame-options":"SAMEORIGIN","x-content-type-options":"nosniff","alt-svc":"quic=\":443\"; ma=2592000; v=\"46,43\",h3-Q050=\":443\"; ma=2592000,h3-Q049=\":443\"; ma=2592000,h3-Q048=\":443\"; ma=2592000,h3-Q046=\":443\"; ma=2592000,h3-Q043=\":443\"; ma=2592000,h3-T050=\":443\"; ma=2592000","accept-ranges":"none","transfer-encoding":"chunked"}
+[info] 
+[info] === Serving from '/Users/jack/workspace/all-schedule'...
+[info] 
+[debug] [2020-04-03T14:27:43.991Z] >>> HTTP REQUEST GET https://firebase.googleapis.com/v1beta1/projects/all-scheduler-1a96c/webApps/-/config  
+ 
+[warn] ⚠  Your requested "node" version "8" doesn't match your global version "10"
+[info] ✔  functions: functions emulator started at http://localhost:5001
+[debug] [2020-04-03T14:27:44.476Z] <<< HTTP RESPONSE 200 {"content-type":"application/json; charset=UTF-8","vary":"X-Origin, Referer, Origin,Accept-Encoding","date":"Fri, 03 Apr 2020 14:27:44 GMT","server":"ESF","cache-control":"private","x-xss-protection":"0","x-frame-options":"SAMEORIGIN","x-content-type-options":"nosniff","alt-svc":"quic=\":443\"; ma=2592000; v=\"46,43\",h3-Q050=\":443\"; ma=2592000,h3-Q049=\":443\"; ma=2592000,h3-Q048=\":443\"; ma=2592000,h3-Q046=\":443\"; ma=2592000,h3-Q043=\":443\"; ma=2592000,h3-T050=\":443\"; ma=2592000","accept-ranges":"none","transfer-encoding":"chunked"}
+[info] i  functions: Watching "/Users/jack/workspace/all-schedule/functions" for Cloud Functions...
+[debug] [2020-04-03T14:27:44.517Z] [worker-pool] addWorker(~diagnostic~) 
+[debug] [2020-04-03T14:27:44.517Z] [worker-pool] Adding worker with key ~diagnostic~, total=1 
+[debug] [2020-04-03T14:27:44.517Z] [worker-pool] submitWork(triggerId=) 
+[debug] [2020-04-03T14:27:44.517Z] [worker-~diagnostic~-0bd51883-8b83-46ed-85c2-55b7aeb2cb2a]: Assigning socketPath: /var/folders/gk/3vmwqbhs1f3fwmt0hjg402y80000gn/T/fire_emu_3609.sock 
+[debug] [2020-04-03T14:27:44.518Z] [worker-~diagnostic~-0bd51883-8b83-46ed-85c2-55b7aeb2cb2a]: BUSY 
+[info] i  hosting: Serving hosting files from: build
+[info] ✔  hosting: Local server: http://localhost:5000
+[debug] [2020-04-03T14:27:44.776Z] [runtime-status] [3609] Functions runtime initialized. {"cwd":"/Users/jack/workspace/all-schedule/functions","node_version":"10.19.0"} 
+[debug] [2020-04-03T14:27:44.777Z] [runtime-status] [3609] Disabled runtime features: undefined 
+[warn] ⚠  The Cloud Functions emulator requires the module "firebase-admin" to be installed. This package is in your package.json, but it's not available. You probably need to run "npm install" in your functions directory.
+[info] i  functions: Your functions could not be parsed due to an issue with your node_modules (see above)
+[debug] [2020-04-03T14:27:44.801Z] [worker-~diagnostic~-0bd51883-8b83-46ed-85c2-55b7aeb2cb2a]: exited 
+[debug] [2020-04-03T14:27:44.802Z] [worker-~diagnostic~-0bd51883-8b83-46ed-85c2-55b7aeb2cb2a]: FINISHED 
