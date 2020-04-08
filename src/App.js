@@ -5,6 +5,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 import Home from './components/Home';
 import Login from './components/Login';
 import Signup from './components/Signup';
+import Schedule from './components/Calendar';
 
 function App(props) {
   const { isAuthenticated, isVerifying } = props;
@@ -13,7 +14,8 @@ function App(props) {
       <ProtectedRoute
         exact
         path='/'
-        component={Home}
+        //component={Home}
+        component={Schedule}
         isAuthenticated={isAuthenticated}
         isVerifying={isVerifying}
       />

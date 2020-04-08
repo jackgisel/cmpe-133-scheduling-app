@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Redirect } from 'react-router-dom';
-import { loginUser } from '../actions';
+import { signupUser } from '../actions';
 import { withStyles } from '@material-ui/styles';
 
 import Avatar from '@material-ui/core/Avatar';
@@ -16,33 +16,33 @@ import Container from '@material-ui/core/Container';
 const styles = () => ({
   '@global': {
     body: {
-      backgroundColor: '#fff',
-    },
+      backgroundColor: '#fff'
+    }
   },
   paper: {
     marginTop: 100,
     display: 'flex',
     padding: 20,
     flexDirection: 'column',
-    alignItems: 'Center',
+    alignItems: 'Center'
   },
   avatar: {
     marginLeft: 'auto',
     marginRight: 'auto',
-    backgroundColor: '#f50057',
+    backgroundColor: '#f50057'
   },
   form: {
-    marginTop: 1,
+    marginTop: 1
   },
   errorText: {
     color: '#f50057',
     marginBottom: 5,
-    textAlign: 'center',
+    textAlign: 'center'
   },
 });
 
 class Signup extends Component {
-  state = { email: '', password: '' };
+  state = { email: '', password: '', password2: '' };
 
   handleEmailChange = ({ target }) => {
     this.setState({ email: target.value });
@@ -52,19 +52,27 @@ class Signup extends Component {
     this.setState({ password: target.value });
   };
 
+  handlePassword2Change = ({ target }) => {
+    this.setState({ password2: target.value });
+  };
+
   handleSubmit = () => {
     const { dispatch } = this.props;
-    const { email, password } = this.state;
-
-    dispatch(loginUser(email, password));
+    const { email, password, password2 } = this.state;
+    if(password !== password2){
+      alert("Passwords do not match");
+    }
+    else{
+      dispatch(signupUser(email, password));
+    }
   };
 
   log_in = () => {
-    this.props.history.push('/login');
-  };
+    this.props.history.push('/login')
+  }
 
   render() {
-    const { classes, loginError, isAuthenticated } = this.props;
+    const { classes, signupError, isAuthenticated } = this.props;
     if (isAuthenticated) {
       return <Redirect to='/' />;
     } else {
@@ -97,18 +105,18 @@ class Signup extends Component {
               onChange={this.handlePasswordChange}
             />
             <TextField
-              variant='outlined'
-              margin='normal'
-              fullWidth
-              name='password2'
-              label='Re-Enter Password'
-              type='password2'
-              id='password2'
-              onChange={this.handlePasswordChange}
+            variant='outlined'
+            margin='normal'
+            fullWidth
+            name='password2'
+            label='Re-Enter Password'
+            type='password'
+            id='password2'
+            onChange={this.handlePassword2Change}
             />
-            {loginError && (
+            {signupError && (
               <Typography component='p' className={classes.errorText}>
-                Incorrect email or password.
+                Invalid email or password.
               </Typography>
             )}
             <Button
@@ -122,9 +130,14 @@ class Signup extends Component {
               Sign Up
             </Button>
 
-            <Link component='button' variant='body2' onClick={this.log_in}>
+            <Link
+            component="button"
+            variant="body2"
+            onClick={this.log_in}
+            >
               Already a member? Log in
             </Link>
+
           </Paper>
         </Container>
       );
@@ -135,8 +148,8 @@ class Signup extends Component {
 function mapStateToProps(state) {
   return {
     isLoggingIn: state.auth.isLoggingIn,
-    loginError: state.auth.loginError,
-    isAuthenticated: state.auth.isAuthenticated,
+    signupError: state.auth.signupError,
+    isAuthenticated: state.auth.isAuthenticated
   };
 }
 
