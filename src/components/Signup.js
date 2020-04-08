@@ -6,12 +6,12 @@ import { withStyles } from '@material-ui/styles';
 
 import Avatar from '@material-ui/core/Avatar';
 import Button from '@material-ui/core/Button';
+import Link from '@material-ui/core/Link';
 import TextField from '@material-ui/core/TextField';
 import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
 import Typography from '@material-ui/core/Typography';
 import Paper from '@material-ui/core/Paper';
 import Container from '@material-ui/core/Container';
-import Link from '@material-ui/core/Link';
 
 const styles = () => ({
   '@global': {
@@ -24,7 +24,7 @@ const styles = () => ({
     display: 'flex',
     padding: 20,
     flexDirection: 'column',
-    alignItems: 'center',
+    alignItems: 'Center',
   },
   avatar: {
     marginLeft: 'auto',
@@ -41,7 +41,7 @@ const styles = () => ({
   },
 });
 
-class Login extends Component {
+class Signup extends Component {
   state = { email: '', password: '' };
 
   handleEmailChange = ({ target }) => {
@@ -59,8 +59,8 @@ class Login extends Component {
     dispatch(loginUser(email, password));
   };
 
-  signUp = () => {
-    this.props.history.push('/signup');
+  log_in = () => {
+    this.props.history.push('/login');
   };
 
   render() {
@@ -75,7 +75,7 @@ class Login extends Component {
               <LockOutlinedIcon />
             </Avatar>
             <Typography component='h1' variant='h5'>
-              Sign in
+              Sign up
             </Typography>
             <TextField
               variant='outlined'
@@ -96,6 +96,16 @@ class Login extends Component {
               id='password'
               onChange={this.handlePasswordChange}
             />
+            <TextField
+              variant='outlined'
+              margin='normal'
+              fullWidth
+              name='password2'
+              label='Re-Enter Password'
+              type='password2'
+              id='password2'
+              onChange={this.handlePasswordChange}
+            />
             {loginError && (
               <Typography component='p' className={classes.errorText}>
                 Incorrect email or password.
@@ -109,11 +119,11 @@ class Login extends Component {
               className={classes.submit}
               onClick={this.handleSubmit}
             >
-              Sign In
+              Sign Up
             </Button>
 
-            <Link component='button' variant='body2' onClick={this.signUp}>
-              New user? Sign up here
+            <Link component='button' variant='body2' onClick={this.log_in}>
+              Already a member? Log in
             </Link>
           </Paper>
         </Container>
@@ -130,4 +140,4 @@ function mapStateToProps(state) {
   };
 }
 
-export default withStyles(styles)(connect(mapStateToProps)(Login));
+export default withStyles(styles)(connect(mapStateToProps)(Signup));
