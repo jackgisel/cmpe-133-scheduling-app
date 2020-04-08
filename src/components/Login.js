@@ -6,38 +6,38 @@ import { withStyles } from '@material-ui/styles';
 
 import Avatar from '@material-ui/core/Avatar';
 import Button from '@material-ui/core/Button';
+import Link from '@material-ui/core/Link';
 import TextField from '@material-ui/core/TextField';
 import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
 import Typography from '@material-ui/core/Typography';
 import Paper from '@material-ui/core/Paper';
 import Container from '@material-ui/core/Container';
-import Link from '@material-ui/core/Link';
 
 const styles = () => ({
   '@global': {
     body: {
-      backgroundColor: '#fff',
-    },
+      backgroundColor: '#fff'
+    }
   },
   paper: {
     marginTop: 100,
     display: 'flex',
     padding: 20,
     flexDirection: 'column',
-    alignItems: 'center',
+    alignItems: 'Center'
   },
   avatar: {
     marginLeft: 'auto',
     marginRight: 'auto',
-    backgroundColor: '#f50057',
+    backgroundColor: '#f50057'
   },
   form: {
-    marginTop: 1,
+    marginTop: 1
   },
   errorText: {
     color: '#f50057',
     marginBottom: 5,
-    textAlign: 'center',
+    textAlign: 'center'
   },
 });
 
@@ -59,9 +59,9 @@ class Login extends Component {
     dispatch(loginUser(email, password));
   };
 
-  signUp = () => {
-    this.props.history.push('/signup');
-  };
+  signup = () => {
+    this.props.history.push('/Signup')
+  }
 
   render() {
     const { classes, loginError, isAuthenticated } = this.props;
@@ -112,9 +112,14 @@ class Login extends Component {
               Sign In
             </Button>
 
-            <Link component='button' variant='body2' onClick={this.signUp}>
-              New user? Sign up here
+            <Link
+            component="button"
+            variant="body2"
+            onClick={this.signup}
+            >
+              Create an account
             </Link>
+
           </Paper>
         </Container>
       );
@@ -126,7 +131,7 @@ function mapStateToProps(state) {
   return {
     isLoggingIn: state.auth.isLoggingIn,
     loginError: state.auth.loginError,
-    isAuthenticated: state.auth.isAuthenticated,
+    isAuthenticated: state.auth.isAuthenticated
   };
 }
 

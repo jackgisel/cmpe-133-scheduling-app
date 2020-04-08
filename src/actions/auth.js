@@ -4,6 +4,8 @@ export const LOGIN_REQUEST = 'LOGIN_REQUEST';
 export const LOGIN_SUCCESS = 'LOGIN_SUCCESS';
 export const LOGIN_FAILURE = 'LOGIN_FAILURE';
 
+export const SIGNUP_FAILURE = 'SIGNUP_FAILURE';
+
 export const LOGOUT_REQUEST = 'LOGOUT_REQUEST';
 export const LOGOUT_SUCCESS = 'LOGOUT_SUCCESS';
 export const LOGOUT_FAILURE = 'LOGOUT_FAILURE';
@@ -27,6 +29,12 @@ const receiveLogin = user => {
 const loginError = () => {
   return {
     type: LOGIN_FAILURE
+  };
+};
+
+const signupError = () => {
+  return {
+    type: SIGNUP_FAILURE
   };
 };
 
@@ -59,6 +67,23 @@ const verifySuccess = () => {
     type: VERIFY_SUCCESS
   };
 };
+
+export const signupUser = (email, password) => dispatch => {
+  myFirebase
+    .auth()
+    .createUserWithEmailAndPassword(email, password)
+    .catch(function(error){
+        // Handle Errors here.
+        var errorCode = error.code;
+        var errorMessage = error.message;
+        if (errorCode === 'auth/weak-password') {
+          alert('The password is too weak.');
+        } else {
+          alert(errorMessage);
+        }
+      dispatch(signupError());
+    });
+}
 
 export const loginUser = (email, password) => dispatch => {
   dispatch(requestLogin());
