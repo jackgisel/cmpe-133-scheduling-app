@@ -14,7 +14,6 @@ function App(props) {
       <ProtectedRoute
         exact
         path='/'
-        //component={Home}
         component={Schedule}
         isAuthenticated={isAuthenticated}
         isVerifying={isVerifying}

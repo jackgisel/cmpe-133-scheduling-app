@@ -16,28 +16,28 @@ import Container from '@material-ui/core/Container';
 const styles = () => ({
   '@global': {
     body: {
-      backgroundColor: '#fff'
-    }
+      backgroundColor: '#fff',
+    },
   },
   paper: {
     marginTop: 100,
     display: 'flex',
     padding: 20,
     flexDirection: 'column',
-    alignItems: 'Center'
+    alignItems: 'Center',
   },
   avatar: {
     marginLeft: 'auto',
     marginRight: 'auto',
-    backgroundColor: '#f50057'
+    backgroundColor: '#f50057',
   },
   form: {
-    marginTop: 1
+    marginTop: 1,
   },
   errorText: {
     color: '#f50057',
     marginBottom: 5,
-    textAlign: 'center'
+    textAlign: 'center',
   },
 });
 
@@ -59,17 +59,18 @@ class Signup extends Component {
   handleSubmit = () => {
     const { dispatch } = this.props;
     const { email, password, password2 } = this.state;
-    if(password !== password2){
-      alert("Passwords do not match");
-    }
-    else{
+    if (password !== password2) {
+      alert('Passwords do not match');
+    } else if (email.split('@')[1] !== 'sjsu.edu') {
+      alert('Must be an SJSU affiliated email. (sjsu.edu)');
+    } else {
       dispatch(signupUser(email, password));
     }
   };
 
   log_in = () => {
-    this.props.history.push('/login')
-  }
+    this.props.history.push('/login');
+  };
 
   render() {
     const { classes, signupError, isAuthenticated } = this.props;
@@ -105,14 +106,14 @@ class Signup extends Component {
               onChange={this.handlePasswordChange}
             />
             <TextField
-            variant='outlined'
-            margin='normal'
-            fullWidth
-            name='password2'
-            label='Re-Enter Password'
-            type='password'
-            id='password2'
-            onChange={this.handlePassword2Change}
+              variant='outlined'
+              margin='normal'
+              fullWidth
+              name='password2'
+              label='Re-Enter Password'
+              type='password'
+              id='password2'
+              onChange={this.handlePassword2Change}
             />
             {signupError && (
               <Typography component='p' className={classes.errorText}>
@@ -130,14 +131,9 @@ class Signup extends Component {
               Sign Up
             </Button>
 
-            <Link
-            component="button"
-            variant="body2"
-            onClick={this.log_in}
-            >
+            <Link component='button' variant='body2' onClick={this.log_in}>
               Already a member? Log in
             </Link>
-
           </Paper>
         </Container>
       );
@@ -149,7 +145,7 @@ function mapStateToProps(state) {
   return {
     isLoggingIn: state.auth.isLoggingIn,
     signupError: state.auth.signupError,
-    isAuthenticated: state.auth.isAuthenticated
+    isAuthenticated: state.auth.isAuthenticated,
   };
 }
 
