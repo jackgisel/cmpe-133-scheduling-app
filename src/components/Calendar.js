@@ -4,6 +4,8 @@ import { logoutUser } from '../actions';
 import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import interactionPlugin from '@fullcalendar/interaction';
+import DownshiftApp from './DownshiftApp';
+import './App.css';
 
 class Schedule extends Component {
   handleLogout = () => {
@@ -25,6 +27,7 @@ class Schedule extends Component {
             { title: 'event 2', date: '2019-04-02' },
           ]}
         />
+        <DownshiftApp />
         <button onClick={this.handleLogout}>Logout</button>
       </div>
     );
@@ -36,4 +39,5 @@ function mapStateToProps(state) {
     logoutError: state.auth.logoutError,
   };
 }
+
 export default connect(mapStateToProps)(Schedule);
