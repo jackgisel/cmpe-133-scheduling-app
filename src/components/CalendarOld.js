@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+/*import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { logoutUser } from '../actions';
 import FullCalendar from '@fullcalendar/react';
@@ -125,3 +125,4 @@ function mapStateToProps(state) {
   };
 }
 export default withStyles(styles)(connect(mapStateToProps)(Schedule));
+*/
