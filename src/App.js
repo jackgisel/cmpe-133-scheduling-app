@@ -2,7 +2,7 @@ import React from 'react';
 import { Route, Switch } from 'react-router-dom';
 import { connect } from 'react-redux';
 import ProtectedRoute from './components/ProtectedRoute';
-import Home from './components/Home';
+import Home from './screens/Home';
 import Login from './components/Login';
 import Signup from './components/Signup';
 import Schedule from './components/Calendar';
@@ -14,7 +14,7 @@ function App(props) {
       <ProtectedRoute
         exact
         path='/'
-        component={Schedule}
+        component={Home}
         isAuthenticated={isAuthenticated}
         isVerifying={isVerifying}
       />
