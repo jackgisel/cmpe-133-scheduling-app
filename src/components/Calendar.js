@@ -13,7 +13,18 @@ import {
   ListItemText,
   Box,
   Fab,
+  FormGroup,
+  FormControlLabel,
+  Checkbox,
+  TextField,
 } from "@material-ui/core";
+import 'date-fns';
+import DateFnsUtils from '@date-io/date-fns';
+import {
+  MuiPickersUtilsProvider,
+  KeyboardTimePicker,
+  KeyboardDatePicker,
+} from '@material-ui/pickers';
 import AddIcon from "@material-ui/icons/Add";
 //import randomHexColor from "random-hex-color";
 import randomColor from "randomcolor";
@@ -58,6 +69,9 @@ const useStyles = makeStyles((theme) => ({
     left: "auto",
     position: "fixed",
   },
+  content: {
+    marginBottom: -50,
+  }
 }));
 
 export default (props) => {
@@ -71,9 +85,9 @@ export default (props) => {
   const [open2, setOpen2] = useState(false);
   const [open3, setOpen3] = useState(false);
   const [currency, setCurrency] = useState("");
-  const [amtDisabled, setamtDisabled] = useState(true);
+  const [amtDisabled, setamtDisabled] = useState(false);
   const [submit_bool, setsubmit_bool] = useState(true);
-  const [yesSelected, setyesSelected] = useState("outlined");
+  const [yesSelected, setyesSelected] = useState("contained");
   const [noSelected, setnoSelected] = useState("outlined");
 
   const [selectedDepartment, setSelectedDepartment] = useState("");
@@ -82,6 +96,20 @@ export default (props) => {
   const [selectedEvent, setSelectedEvent] = useState("");
   const [section, setSection] = useState("");
   const [events, setEvents] = useState([]);
+
+  const [selectedSDate, setSelectedSDate] = useState(new Date());
+  const [selectedEDate, setSelectedEDate] = useState(new Date());
+  const [IsRecurring, setIsRecurring] = useState(true);
+  const [DOW, setDOW] = useState({
+    Monday: false,
+    Tuesday: false,
+    Wednesday: false,
+    Thursday: false,
+    Friday: false,
+    Saturday: false,
+    Sunday: false,
+  });
+  const { Monday, Tuesday, Wednesday, Thursday, Friday, Saturday, Sunday } = DOW;
 
   const handleOpen = () => {
     setOpen(true);
@@ -97,6 +125,11 @@ export default (props) => {
 
   const handleClose3 = () => {
     setOpen3(false);
+    setDOW( {
+      Monday: false, Tuesday: false, Wednesday: false, Thursday: false, Friday: false, Saturday: false, Sunday: false
+    });
+    setSelectedSDate(new Date());
+    setSelectedEDate(new Date());
   };
 
   const handleButton = (e) => {
@@ -115,6 +148,29 @@ export default (props) => {
     setyesSelected("outlined");
   };
 
+  const handleButton3 = (e) => {
+    setIsRecurring(true);
+
+    setyesSelected("contained");
+    setnoSelected("outlined");
+  };
+
+  const handleButton4 = (e) => {
+    setIsRecurring(false);
+
+    setnoSelected("contained");
+    setyesSelected("outlined");
+  };
+
+  const handleDateChange = (date) => {
+    setSelectedSDate(date);
+    setSelectedEDate(date);
+  };
+
+  const handleDateChange2 = (date) => {
+    setSelectedEDate(date);
+  };
+
   const handleEventClick = (e) => {
     setSelectedEvent(e.event.title);
     setSection(sections[0]);
@@ -128,6 +184,16 @@ export default (props) => {
     //dispatch to database
     setOpen(false);
   }
+
+  const handleSubmit2 = (e) => {
+    alert("Start date: " + selectedSDate + "\nEnd date: " + selectedEDate);
+    //dispatch to database
+    setOpen3(false);
+  }
+
+  const handleChecked = (event) => {
+    setDOW({ ...DOW, [event.target.name]: event.target.checked });
+  };
 
   function convertFrom24To12Format(time24) {
     let startString = "" + time24;
@@ -157,6 +223,7 @@ export default (props) => {
   function handleCustomEvent() {
     setOpen3(true);
   }
+  
 
   function handleOnAddEvent() {
     let section = sections.filter((sec) => sec.id === selectedSection)[0];
@@ -432,7 +499,7 @@ export default (props) => {
               currencySymbol="$"
               outputFormat="number"
               disabled={amtDisabled}
-              onChange={(e, currency) => setCurrency(currency)}
+              onChange={(e, currency) => {setCurrency(currency); setsubmit_bool(false);}}
               defaultValue="0.00"
               fullWidth
             />
@@ -457,22 +524,130 @@ export default (props) => {
           open={open3}
           onClose={handleClose3}
           aria-labelledby="form-dialog-title"
+          maxWidth="md"
         >
-        <DialogTitle id="form-dialog-title">Create Calendar Event</DialogTitle>
+        <DialogTitle id="form-dialog-title" className={classes.content}>Create Calendar Event</DialogTitle>
           <DialogContent>
+            <form className={classes.container} noValidate>
+              <TextField 
+                id="standard-basic" 
+                label="Enter the title of the event" 
+                fullWidth="true" 
+                helperText="Maximum Character Length: 20"
+              />
+              <Box flexDirection="column" mt={2}>
+              Is this event recurring?
+              <br></br>
+              </Box>
+              <Box flexDirection="column" mt={2}>
+              <ButtonGroup>
+                <Button
+                  classname={classes.button}
+                  value="true"
+                  variant={yesSelected}
+                  color="primary"
+                  onClick={handleButton3}
+                >
+                  Yes
+                </Button>
+                <Button
+                  classname={classes.button}
+                  value="false"
+                  variant={noSelected}
+                  color="primary"
+                  onClick={handleButton4}
+                >
+                  No
+                </Button>
+              </ButtonGroup>
+              </Box>
+              <br></br>
+
+              <FormGroup aria-label="position" row>
+                <FormControlLabel
+                  control={<Checkbox checked={Monday} name="Monday" onChange={handleChecked} disabled={!IsRecurring} />}
+                  label="Monday" labelPlacement="top"
+                />
+                <FormControlLabel
+                  control={<Checkbox checked={Tuesday} name="Tuesday" onChange={handleChecked} disabled={!IsRecurring} />}
+                  label="Tuesday" labelPlacement="top"
+                />
+                <FormControlLabel
+                  control={<Checkbox checked={Wednesday} name="Wednesday" onChange={handleChecked} disabled={!IsRecurring} />}
+                  label="Wednesday" labelPlacement="top"
+                />
+                <FormControlLabel
+                  control={<Checkbox checked={Thursday} name="Thursday" onChange={handleChecked} disabled={!IsRecurring} />}
+                  label="Thursday" labelPlacement="top"
+                />
+                <FormControlLabel
+                  control={<Checkbox checked={Friday} name="Friday" onChange={handleChecked} disabled={!IsRecurring} />}
+                  label="Friday" labelPlacement="top"
+                />
+                <FormControlLabel
+                  control={<Checkbox checked={Saturday} name="Saturday" onChange={handleChecked} disabled={!IsRecurring} />}
+                  label="Saturday" labelPlacement="top"
+                />
+                <FormControlLabel
+                control={<Checkbox checked={Sunday} name="Sunday" onChange={handleChecked} disabled={!IsRecurring} />}
+                label="Sunday" labelPlacement="top"
+                />
+              </FormGroup>
+
+              <MuiPickersUtilsProvider utils={DateFnsUtils}>
+                  <KeyboardDatePicker
+                    margin="normal"
+                    id="date-picker-dialog"
+                    label="Pick a date below: "
+                    format="MM/dd/yyyy"
+                    value={selectedSDate}
+                    disabled={IsRecurring}
+                    onChange={handleDateChange}
+                    KeyboardButtonProps={{
+                      'aria-label': 'change date',
+                    }}
+                  />
+                  <br></br>
+
+                  <KeyboardTimePicker
+                    margin="normal"
+                    id="time-picker"
+                    label="Pick a start time: "
+                    value={selectedSDate}
+                    onChange={handleDateChange}
+                    KeyboardButtonProps={{
+                      'aria-label': 'change time',
+                    }}
+                  />
+                  <br></br>
+
+                  <KeyboardTimePicker
+                    margin="normal"
+                    id="time-picker"
+                    label="Pick an end time: "
+                    value={selectedEDate}
+                    onChange={handleDateChange2}
+                    KeyboardButtonProps={{
+                      'aria-label': 'change time',
+                    }}
+                  />
+              </MuiPickersUtilsProvider>
+            </form>
+
+
           </DialogContent>
           <DialogActions>
-          <Button onClick={handleClose3} color="primary">
-            Cancel
-          </Button>
-          <Button
-            //onClick={handleSubmit}
-            color="primary"
-            //disabled={submit_bool}
-            //value={currency}
-          >
-            Submit
-          </Button>
+            <Button onClick={handleClose3} color="primary">
+              Cancel
+            </Button>
+            <Button
+              onClick={handleSubmit2}
+              color="primary"
+              //disabled={submit_bool}
+              //value={currency}
+            >
+              Submit
+            </Button>
         </DialogActions>
         </Dialog>
       </Paper>
