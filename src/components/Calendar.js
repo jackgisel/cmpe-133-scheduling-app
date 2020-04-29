@@ -11,6 +11,7 @@ import {
   List,
   ListItem,
   ListItemText,
+  Box,
 } from "@material-ui/core";
 //import randomHexColor from "random-hex-color";
 import randomColor from "randomcolor";
@@ -104,6 +105,31 @@ export default (props) => {
     setOpen2(true);
     console.log(section["Title"] + ", " + section["Department"]);
   };
+
+  function convertFrom24To12Format(time24) {
+    let startString = "" + time24;
+    try{
+      startString = startString.split("");
+      let start =
+      startString.length === 3
+        ? "0" + startString[0] + ":" + startString[1] + startString[2]
+        : startString[0] +
+          startString[1] +
+          ":" +
+          startString[2] +
+          startString[3];
+
+      const [sHours, minutes] = start.match(/([0-9]{1,2}):([0-9]{2})/).slice(1);
+      const period = +sHours < 12 ? 'AM' : 'PM';
+      const hours = +sHours % 12 || 12;
+    
+      return `${hours}:${minutes} ${period}`;
+    }
+    catch{
+      startString = "";
+      return null;
+    }
+  }
 
   function handleOnAddEvent() {
     let section = sections.filter((sec) => sec.id === selectedSection)[0];
@@ -295,10 +321,44 @@ export default (props) => {
           }}
           events={events}
         />
+        
+        <Dialog
+          open={open2}
+          onClose={handleClose2}
+          aria-labelledby="form-dialog-title"
+          fullscreen
+          maxWidth="lg"
+        >
+          <DialogTitle id="form-dialog-title">Course Details</DialogTitle>
+          <DialogContent>
+            <Box display="flex" p={0.5}>
+              <Box>
+                <Box fontWeight="fontWeightBold" display="inline">Title: </Box> {section["Title"]} <br></br>
+                <Box fontWeight="fontWeightBold" display="inline">Course Code: </Box> {section["Code"]} <br></br>
+                <Box fontWeight="fontWeightBold" display="inline">Section: </Box> {section["Section"]} <br></br>
+                <Box fontWeight="fontWeightBold" display="inline">Department: </Box> {section["Department"]} <br></br>
+                <Box fontWeight="fontWeightBold" display="inline">Seats Available: </Box> {section["Total seats"] - section["Seats taken"]} <br></br>
+                <Box fontWeight="fontWeightBold" display="inline">Type: </Box> {section["Type"]} <br></br>
+                <Box fontWeight="fontWeightBold" display="inline">Instructor: </Box> {section["Instructor Fname"]}. {section["Instructor Lname"]} <br></br>
+                <Box fontWeight="fontWeightBold" display="inline">Institution: </Box> {section["Institution"]} <br></br>
+                <Box fontWeight="fontWeightBold" display="inline">Credits: </Box> {section["Units"]} <br></br>
+              </Box>
+              <Box p={0.5}>
+                <Box fontWeight="fontWeightBold">Days, Time, Location: </Box> {section["Days"]} {convertFrom24To12Format(section["Start Time"])} - 
+                {convertFrom24To12Format(section["End Time"])} - {section["Location"]} <br></br>
+              </Box>
+            </Box>
+          </DialogContent>
+          <DialogActions>
+          <Button size="small" color="primary" onClick={handleOpen}>
+            Taken this course? Fill out a quick survey for us!
+          </Button>
+          <Button size="small" onClick={handleClose2} color="primary">
+            Close
+          </Button>
+        </DialogActions>
+        </Dialog>
 
-        <Button variant="outlined" color="primary" onClick={handleOpen}>
-          Taken this course? Fill out a quick survey for us!
-        </Button>
         <Dialog
           open={open}
           onClose={handleClose}
@@ -354,25 +414,6 @@ export default (props) => {
               Submit
             </Button>
           </DialogActions>
-        </Dialog>
-        
-
-
-        <Dialog
-          open={open2}
-          onClose={handleClose2}
-          aria-labelledby="form-dialog-title"
-          fullscreen
-          maxWidth="md"
-        >
-          <DialogTitle id="form-dialog-title">{section["Course"]} - {section["Title"]}</DialogTitle>
-          <DialogContent></DialogContent>
-
-          <DialogActions>
-          <Button onClick={handleClose2} color="primary">
-            Close
-          </Button>
-        </DialogActions>
         </Dialog>
       </Paper>
     </Container>
