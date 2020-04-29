@@ -12,7 +12,9 @@ import {
   ListItem,
   ListItemText,
   Box,
+  Fab,
 } from "@material-ui/core";
+import AddIcon from "@material-ui/icons/Add";
 //import randomHexColor from "random-hex-color";
 import randomColor from "randomcolor";
 
@@ -48,6 +50,14 @@ const useStyles = makeStyles((theme) => ({
   padded: {
     padding: 20,
   },
+  fab: {
+    margin: 0,
+    top: "auto",
+    right: 20,
+    bottom: 20,
+    left: "auto",
+    position: "fixed",
+  },
 }));
 
 export default (props) => {
@@ -59,6 +69,8 @@ export default (props) => {
 
   const [open, setOpen] = useState(false);
   const [open2, setOpen2] = useState(false);
+  const [open3, setOpen3] = useState(false);
+  const [currency, setCurrency] = useState("");
   const [amtDisabled, setamtDisabled] = useState(true);
   const [submit_bool, setsubmit_bool] = useState(true);
   const [yesSelected, setyesSelected] = useState("outlined");
@@ -81,6 +93,10 @@ export default (props) => {
 
   const handleClose2 = () => {
     setOpen2(false);
+  };
+
+  const handleClose3 = () => {
+    setOpen3(false);
   };
 
   const handleButton = (e) => {
@@ -106,6 +122,13 @@ export default (props) => {
     console.log(section["Title"] + ", " + section["Department"]);
   };
 
+  const handleSubmit = (e) => {
+    console.log(section["Title"] + ", " + section["Department"]);
+    console.log("Cost: " + currency);
+    //dispatch to database
+    setOpen(false);
+  }
+
   function convertFrom24To12Format(time24) {
     let startString = "" + time24;
     try{
@@ -129,6 +152,10 @@ export default (props) => {
       startString = "";
       return null;
     }
+  }
+
+  function handleCustomEvent() {
+    setOpen3(true);
   }
 
   function handleOnAddEvent() {
@@ -202,6 +229,10 @@ export default (props) => {
   }
 
   return (
+    <div>
+    <Fab color="primary" aria-label="add" className={classes.fab} variant="extended" onClick={handleCustomEvent}>
+    <AddIcon /> Add a custom event
+    </Fab>
     <Container className={classes.container} component="schedule" maxWidth="md">
       <Paper>
         <div>
@@ -289,18 +320,20 @@ export default (props) => {
             >
               Add course to schedule
             </Button>
-          </div>
-          <div>
-            <List component="nav" aria-label="secondary mailbox folders">
-              <ListItem button>
-                <ListItemText primary="Trash" />
-              </ListItem>
-              <ListItemLink href="#simple-list">
-                <ListItemText primary="Spam" />
-              </ListItemLink>
-            </List>
+          
+            <div>
+              <List component="nav" aria-label="secondary mailbox folders">
+                <ListItem button>
+                  <ListItemText primary="Trash" />
+                </ListItem>
+                <ListItemLink href="#simple-list">
+                  <ListItemText primary="Spam" />
+                </ListItemLink>
+              </List>
+            </div>
           </div>
         </div>
+        
 
         <FullCalendar
           defaultView="timeGridWeek"
@@ -395,9 +428,11 @@ export default (props) => {
             <CurrencyTextField
               label="Amount"
               variant="standard"
+              value={currency}
               currencySymbol="$"
               outputFormat="number"
               disabled={amtDisabled}
+              onChange={(e, currency) => setCurrency(currency)}
               defaultValue="0.00"
               fullWidth
             />
@@ -407,15 +442,41 @@ export default (props) => {
               Cancel
             </Button>
             <Button
-              onClick={handleClose}
+              onClick={handleSubmit}
               color="primary"
               disabled={submit_bool}
+              value={currency}
             >
               Submit
             </Button>
           </DialogActions>
         </Dialog>
+
+
+        <Dialog
+          open={open3}
+          onClose={handleClose3}
+          aria-labelledby="form-dialog-title"
+        >
+        <DialogTitle id="form-dialog-title">Create Calendar Event</DialogTitle>
+          <DialogContent>
+          </DialogContent>
+          <DialogActions>
+          <Button onClick={handleClose3} color="primary">
+            Cancel
+          </Button>
+          <Button
+            //onClick={handleSubmit}
+            color="primary"
+            //disabled={submit_bool}
+            //value={currency}
+          >
+            Submit
+          </Button>
+        </DialogActions>
+        </Dialog>
       </Paper>
     </Container>
+    </div>
   );
 };
