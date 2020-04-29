@@ -12,10 +12,11 @@ import {
   ListItem,
   ListItemText,
 } from "@material-ui/core";
-import randomHexColor from "random-hex-color";
+//import randomHexColor from "random-hex-color";
+import randomColor from "randomcolor";
 
 import { useDispatch, useSelector } from "react-redux";
-import { getDepartments, getCourses, getSections } from "../actions/";
+import { getDepartments, getCourses, getSections, searchbyID } from "../actions/";
 import Dialog from "@material-ui/core/Dialog";
 import DialogActions from "@material-ui/core/DialogActions";
 import DialogContent from "@material-ui/core/DialogContent";
@@ -56,6 +57,7 @@ export default (props) => {
   const sections = useSelector((state) => state.classes.sections);
 
   const [open, setOpen] = useState(false);
+  const [open2, setOpen2] = useState(false);
   const [amtDisabled, setamtDisabled] = useState(true);
   const [submit_bool, setsubmit_bool] = useState(true);
   const [yesSelected, setyesSelected] = useState("outlined");
@@ -64,6 +66,8 @@ export default (props) => {
   const [selectedDepartment, setSelectedDepartment] = useState("");
   const [selectedCourse, setSelectedCourse] = useState("");
   const [selectedSection, setSelectedSection] = useState("");
+  const [selectedEvent, setSelectedEvent] = useState("");
+  const [section, setSection] = useState("");
   const [events, setEvents] = useState([]);
 
   const handleOpen = () => {
@@ -72,6 +76,10 @@ export default (props) => {
 
   const handleClose = () => {
     setOpen(false);
+  };
+
+  const handleClose2 = () => {
+    setOpen2(false);
   };
 
   const handleButton = (e) => {
@@ -88,6 +96,13 @@ export default (props) => {
 
     setnoSelected("contained");
     setyesSelected("outlined");
+  };
+
+  const handleEventClick = (e) => {
+    setSelectedEvent(e.event.title);
+    setSection(sections[0]);
+    setOpen2(true);
+    console.log(section["Title"] + ", " + section["Department"]);
   };
 
   function handleOnAddEvent() {
@@ -108,13 +123,24 @@ export default (props) => {
         ? "0" + endString[0] + ":" + endString[1] + endString[2]
         : endString[0] + endString[1] + ":" + endString[2] + endString[3];
 
+    let startRecurString = section["Start Date"].toString().split("/");
+    let startRecS = "20" + startRecurString[2] + "-" + startRecurString[0] + "-" + startRecurString[1];
+
+    let endRecurString = section["End Date"].toString().split("/");
+    let endRecS = "20" + endRecurString[2] + "-" + endRecurString[0] + "-" + endRecurString[1];
+
     let newEvent = {
       ...section,
       title: section.id,
       daysOfWeek: JSON.parse(section["Daysofweek"]),
       startTime: start,
       endTime: end,
-      backgroundColor: randomHexColor(),
+      startRecur: startRecS,
+      endRecur: endRecS,
+      id: section.Code,
+      backgroundColor: randomColor({
+        luminosity: 'light',
+      }),
     };
 
     setEvents([...events, newEvent]);
@@ -138,6 +164,12 @@ export default (props) => {
       dispatch(getSections(selectedCourse));
     }
   }, [selectedCourse]);
+
+  useEffect(() => {
+    if (selectedEvent) {
+       dispatch(searchbyID(selectedEvent));
+    }
+  }, [selectedEvent]);
 
   function ListItemLink(props) {
     return <ListItem button component="a" {...props} />;
@@ -208,14 +240,13 @@ export default (props) => {
                 labelId="label3"
                 id="select"
                 value={selectedSection}
-                onChange={(event) => setSelectedSection(event.target.value)}
+                onChange={(event) => {setSelectedSection(event.target.value); console.log(event.target.value);}}
               >
                 {sections?.map((section) => {
                   return (
                     <MenuItem key={section.id} value={section.id}>
-                      {section["Section"]} {section["Instructor Fname"]}.
-                      {section["Instructor Lname"]} {section["Start Time"]}-
-                      {section["End Time"]}
+                    Section {section["Section"]}, {section["Type"]}, Day & Time: {section["Days"]} {section["Start Time"]}-{section["End Time"]}, Instructor: {section["Instructor Fname"]}.
+                    {section["Instructor Lname"]}, Seats Available: {section["Total seats"] - section["Seats taken"]}
                     </MenuItem>
                   );
                 })}
@@ -254,6 +285,7 @@ export default (props) => {
             interactionPlugin,
             bootstrapPlugin,
           ]}
+          eventClick={handleEventClick}
           themeSystem="bootstrap"
           minTime={"06:00:00"}
           header={{
@@ -322,6 +354,25 @@ export default (props) => {
               Submit
             </Button>
           </DialogActions>
+        </Dialog>
+        
+
+
+        <Dialog
+          open={open2}
+          onClose={handleClose2}
+          aria-labelledby="form-dialog-title"
+          fullscreen
+          maxWidth="md"
+        >
+          <DialogTitle id="form-dialog-title">{section["Course"]} - {section["Title"]}</DialogTitle>
+          <DialogContent></DialogContent>
+
+          <DialogActions>
+          <Button onClick={handleClose2} color="primary">
+            Close
+          </Button>
+        </DialogActions>
         </Dialog>
       </Paper>
     </Container>

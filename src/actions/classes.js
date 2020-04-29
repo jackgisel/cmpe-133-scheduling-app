@@ -133,3 +133,23 @@ export const getSections = (courseId) => async (dispatch) => {
       dispatch(fetchSectionsError(err));
     });
 };
+
+export const searchbyID = (sectionId) => async (dispatch) => {
+  dispatch(fetchSections());
+  await db
+    .collection("SJSU - Sections")
+    .doc(sectionId)
+    .get()
+    .then(doc => {
+        let sections = [];
+        sections.push({
+          id: doc.id,
+          ...doc.data(),
+        })
+        dispatch(fetchSectionsSuccess(sections));
+        return Promise.resolve();
+    })
+    .catch((err) => {
+      dispatch(fetchSectionsError(err));
+    });
+}
