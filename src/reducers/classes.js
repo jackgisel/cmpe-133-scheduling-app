@@ -8,6 +8,9 @@ import {
   FETCH_SECTION_REQUEST,
   FETCH_SECTION_SUCCESS,
   FETCH_SECTION_FAILURE,
+  FETCH_PROFESSOR_REQUEST,
+  FETCH_PROFESSOR_SUCCESS,
+  FETCH_PROFESSOR_FAILURE
 } from "../actions";
 
 export default (
@@ -16,6 +19,7 @@ export default (
     departments: [],
     courses: [],
     sections: [],
+    professors: [],
     error: undefined,
   },
   action
@@ -34,6 +38,13 @@ export default (
       return {
         ...state,
         sections: [],
+        isFetching: true,
+        error: false,
+      };
+    case FETCH_PROFESSOR_REQUEST:
+      return {
+        ...state,
+        professors: [],
         isFetching: true,
         error: false,
       };
@@ -58,9 +69,17 @@ export default (
         isFetching: false,
         error: undefined,
       };
+    case FETCH_PROFESSOR_SUCCESS:
+      return {
+        ...state,
+        professors: action.professors,
+        isFetching: false,
+        error: undefined,
+      };
     case FETCH_COURSE_FAILURE:
     case FETCH_DEPARTMENT_FAILURE:
     case FETCH_SECTION_FAILURE:
+    case FETCH_PROFESSOR_FAILURE:
       return {
         ...state,
         isFetching: false,

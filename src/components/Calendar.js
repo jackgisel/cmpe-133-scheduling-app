@@ -30,7 +30,7 @@ import AddIcon from "@material-ui/icons/Add";
 import randomColor from "randomcolor";
 
 import { useDispatch, useSelector } from "react-redux";
-import { getDepartments, getCourses, getSections, searchbyID } from "../actions/";
+import { getDepartments, getCourses, getSections, searchbyID, searchProfessor } from "../actions/";
 import Dialog from "@material-ui/core/Dialog";
 import DialogActions from "@material-ui/core/DialogActions";
 import DialogContent from "@material-ui/core/DialogContent";
@@ -80,6 +80,7 @@ export default (props) => {
   const departments = useSelector((state) => state.classes.departments);
   const courses = useSelector((state) => state.classes.courses);
   const sections = useSelector((state) => state.classes.sections);
+  const professors = useSelector((state) => state.classes.professors);
 
   const [open, setOpen] = useState(false);
   const [open2, setOpen2] = useState(false);
@@ -271,25 +272,25 @@ export default (props) => {
 
   useEffect(() => {
     dispatch(getDepartments());
-  }, []);
+  }, [dispatch]);
 
   useEffect(() => {
     if (selectedDepartment) {
       dispatch(getCourses(selectedDepartment));
     }
-  }, [selectedDepartment]);
+  }, [selectedDepartment, dispatch]);
 
   useEffect(() => {
     if (selectedCourse) {
       dispatch(getSections(selectedCourse));
     }
-  }, [selectedCourse]);
+  }, [selectedCourse, dispatch]);
 
   useEffect(() => {
     if (selectedEvent) {
        dispatch(searchbyID(selectedEvent));
     }
-  }, [selectedEvent]);
+  }, [selectedEvent, dispatch]);
 
   function ListItemLink(props) {
     return <ListItem button component="a" {...props} />;
@@ -432,7 +433,7 @@ export default (props) => {
           <DialogTitle id="form-dialog-title">Course Details</DialogTitle>
           <DialogContent>
             <Box display="flex" p={0.5}>
-              <Box>
+              <Box mr={15}>
                 <Box fontWeight="fontWeightBold" display="inline">Title: </Box> {section["Title"]} <br></br>
                 <Box fontWeight="fontWeightBold" display="inline">Course Code: </Box> {section["Code"]} <br></br>
                 <Box fontWeight="fontWeightBold" display="inline">Section: </Box> {section["Section"]} <br></br>
@@ -444,8 +445,14 @@ export default (props) => {
                 <Box fontWeight="fontWeightBold" display="inline">Credits: </Box> {section["Units"]} <br></br>
               </Box>
               <Box p={0.5}>
-                <Box fontWeight="fontWeightBold">Days, Time, Location: </Box> {section["Days"]} {convertFrom24To12Format(section["Start Time"])} - 
-                {convertFrom24To12Format(section["End Time"])} - {section["Location"]} <br></br>
+                <Box fontWeight="fontWeightBold">Days, Time, Location: </Box> {section["Days"]} 
+                {convertFrom24To12Format(section["Start Time"])} - {convertFrom24To12Format(section["End Time"])} - {section["Location"]} <br></br>
+                <Box display="inline">Dates: </Box> {section["Start Date"]} - {section["End Date"]} <br></br>
+                <Box ml={-0.5}>
+                <Button size="small" color="primary" onClick={handleOpen}>
+                  View RateMyProfessor Info
+                </Button>
+                </Box>
               </Box>
             </Box>
           </DialogContent>
@@ -536,7 +543,7 @@ export default (props) => {
                 helperText="Maximum Character Length: 20"
               />
               <Box flexDirection="column" mt={2}>
-              Is this event recurring?
+                Is this event recurring?
               <br></br>
               </Box>
               <Box flexDirection="column" mt={2}>

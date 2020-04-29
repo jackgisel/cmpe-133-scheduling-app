@@ -12,6 +12,10 @@ export const FETCH_SECTION_REQUEST = "FETCH_SECTION_REQUEST";
 export const FETCH_SECTION_SUCCESS = "FETCH_SECTION_SUCCESS";
 export const FETCH_SECTION_FAILURE = "FETCH_SECTION_FAILURE";
 
+export const FETCH_PROFESSOR_REQUEST = "FETCH_PROFESSOR_REQUEST";
+export const FETCH_PROFESSOR_SUCCESS = "FETCH_PROFESSOR_SUCCESS";
+export const FETCH_PROFESSOR_FAILURE = "FETCH_PROFESSOR_FAILURE";
+
 const fetchDepartments = () => {
   return {
     type: FETCH_DEPARTMENT_REQUEST,
@@ -68,6 +72,26 @@ const fetchSectionsSuccess = (sections) => {
 const fetchSectionsError = (error) => {
   return {
     type: FETCH_SECTION_FAILURE,
+    error,
+  };
+};
+
+const fetchProfessors = () => {
+  return {
+    type: FETCH_PROFESSOR_REQUEST,
+  };
+};
+
+const fetchProfessorsSuccess = (professors) => {
+  return {
+    type: FETCH_PROFESSOR_SUCCESS,
+    professors,
+  };
+};
+
+const fetchProfessorsError = (error) => {
+  return {
+    type: FETCH_PROFESSOR_FAILURE,
     error,
   };
 };
@@ -153,3 +177,24 @@ export const searchbyID = (sectionId) => async (dispatch) => {
       dispatch(fetchSectionsError(err));
     });
 }
+
+export const searchProfessor = (Lname) => async (dispatch) => {
+  dispatch(fetchProfessors());
+  await db
+    .collection("SJSU - Professors")
+    .where("Last Name", "==", Lname)
+    .get()
+    .then(function (querySnapshot) {
+      let professors = [];
+      querySnapshot.forEach((doc) =>
+        professors.push({
+          id: doc.id,
+          ...doc.data(),
+        })
+      );
+      dispatch(fetchProfessorsSuccess(professors));
+    })
+    .catch((err) => {
+      dispatch(fetchProfessorsError(err));
+    });
+};
