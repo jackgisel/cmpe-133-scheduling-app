@@ -1,4 +1,4 @@
-import { myFirebase } from "../firebase/firebase";
+import { myFirebase, db } from "../firebase/firebase";
 
 export const LOGIN_REQUEST = "LOGIN_REQUEST";
 export const LOGIN_SUCCESS = "LOGIN_SUCCESS";
@@ -71,7 +71,20 @@ const verifySuccess = () => {
 export const signupUser = (email, password) => (dispatch) => {
   myFirebase
     .auth()
-    .createUserWithEmailAndPassword(email, password) // TODO make user model in database
+    .createUserWithEmailAndPassword(email, password)
+    .then((id) => {
+      console.log(id);
+      db.collection("users")
+        .add({
+          email: email,
+        })
+        .then(function (docRef) {
+          console.log("Document written with ID: ", docRef.id);
+        })
+        .catch(function (error) {
+          console.error("Error adding document: ", error);
+        });
+    })
     .catch(function (error) {
       // Handle Errors here.
       var errorCode = error.code;
