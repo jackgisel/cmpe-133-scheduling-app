@@ -20,6 +20,7 @@ export default (
   },
   action
 ) => {
+  console.log(action);
   switch (action.type) {
     case FETCH_DEPARTMENT_REQUEST:
     case FETCH_COURSE_REQUEST:
