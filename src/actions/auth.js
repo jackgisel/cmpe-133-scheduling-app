@@ -73,7 +73,6 @@ export const signupUser = (email, password) => (dispatch) => {
     .auth()
     .createUserWithEmailAndPassword(email, password)
     .then((id) => {
-      console.log(id);
       db.collection("users")
         .add({
           email: email,

@@ -3,6 +3,7 @@ import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
+import bootstrapPlugin from "@fullcalendar/bootstrap";
 import {
   Container,
   Paper,
@@ -11,15 +12,25 @@ import {
   ListItem,
   ListItemText,
 } from "@material-ui/core";
+import randomHexColor from "random-hex-color";
 
 import { useDispatch, useSelector } from "react-redux";
 import { getDepartments, getCourses, getSections } from "../actions/";
+import Dialog from "@material-ui/core/Dialog";
+import DialogActions from "@material-ui/core/DialogActions";
+import DialogContent from "@material-ui/core/DialogContent";
+import DialogContentText from "@material-ui/core/DialogContentText";
+import DialogTitle from "@material-ui/core/DialogTitle";
+import CurrencyTextField from "@unicef/material-ui-currency-textfield";
 
 import Select from "@material-ui/core/Select";
 import InputLabel from "@material-ui/core/InputLabel";
 import MenuItem from "@material-ui/core/MenuItem";
 import FormControl from "@material-ui/core/FormControl";
 import Button from "@material-ui/core/Button";
+import ButtonGroup from "@material-ui/core/ButtonGroup";
+import "./bootstrap.min.css";
+import "@fortawesome/fontawesome-free/css/all.css";
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -44,9 +55,73 @@ export default (props) => {
   const courses = useSelector((state) => state.classes.courses);
   const sections = useSelector((state) => state.classes.sections);
 
-  const [selectedDepartment, setSelectedDepartment] = useState(undefined);
-  const [selectedCourse, setSelectedCourse] = useState(undefined);
-  const [selectedSection, setSelectedSection] = useState(undefined);
+  const [open, setOpen] = useState(false);
+  const [amtDisabled, setamtDisabled] = useState(true);
+  const [submit_bool, setsubmit_bool] = useState(true);
+  const [yesSelected, setyesSelected] = useState("outlined");
+  const [noSelected, setnoSelected] = useState("outlined");
+
+  const [selectedDepartment, setSelectedDepartment] = useState("");
+  const [selectedCourse, setSelectedCourse] = useState("");
+  const [selectedSection, setSelectedSection] = useState("");
+  const [events, setEvents] = useState([]);
+
+  const handleOpen = () => {
+    setOpen(true);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+  };
+
+  const handleButton = (e) => {
+    setamtDisabled(false);
+    setsubmit_bool(false);
+
+    setyesSelected("contained");
+    setnoSelected("outlined");
+  };
+
+  const handleButton2 = (e) => {
+    setamtDisabled(true);
+    setsubmit_bool(false);
+
+    setnoSelected("contained");
+    setyesSelected("outlined");
+  };
+
+  function handleOnAddEvent() {
+    let section = sections.filter((sec) => sec.id === selectedSection)[0];
+    let startString = section["Start Time"].toString().split("");
+    let start =
+      startString.length === 3
+        ? "0" + startString[0] + ":" + startString[1] + startString[2]
+        : startString[0] +
+          startString[1] +
+          ":" +
+          startString[2] +
+          startString[3];
+
+    let endString = section["End Time"].toString().split("");
+    let end =
+      endString.length === 3
+        ? "0" + endString[0] + ":" + endString[1] + endString[2]
+        : endString[0] + endString[1] + ":" + endString[2] + endString[3];
+
+    let newEvent = {
+      ...section,
+      title: section.id,
+      daysOfWeek: JSON.parse(section["Daysofweek"]),
+      startTime: start,
+      endTime: end,
+      backgroundColor: randomHexColor(),
+    };
+
+    setEvents([...events, newEvent]);
+    setSelectedDepartment("");
+    setSelectedCourse("");
+    setSelectedSection("");
+  }
 
   useEffect(() => {
     dispatch(getDepartments());
@@ -90,7 +165,7 @@ export default (props) => {
                 }}
               >
                 {departments?.map((department) => (
-                  <MenuItem value={department.id}>
+                  <MenuItem value={department.id} key={department.id}>
                     {department["Department Name"]}
                   </MenuItem>
                 ))}
@@ -114,7 +189,7 @@ export default (props) => {
                 }}
               >
                 {courses?.map((course) => (
-                  <MenuItem value={course.id}>
+                  <MenuItem key={course.id} value={course.id}>
                     {course["Course"]} {course["Title"]}
                   </MenuItem>
                 ))}
@@ -136,11 +211,11 @@ export default (props) => {
                 onChange={(event) => setSelectedSection(event.target.value)}
               >
                 {sections?.map((section) => {
-                  console.log(section);
                   return (
-                    <MenuItem value={section.id}>
+                    <MenuItem key={section.id} value={section.id}>
                       {section["Section"]} {section["Instructor Fname"]}.
-                      {section["Instructor Lname"]}
+                      {section["Instructor Lname"]} {section["Start Time"]}-
+                      {section["End Time"]}
                     </MenuItem>
                   );
                 })}
@@ -152,7 +227,7 @@ export default (props) => {
               fullWidth
               variant="contained"
               color="primary"
-              //onClick={this.handleSubmit}
+              onClick={handleOnAddEvent}
               className={classes.addcourse}
             >
               Add course to schedule
@@ -173,22 +248,81 @@ export default (props) => {
         <FullCalendar
           defaultView="timeGridWeek"
           allDaySlot={false}
-          plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
-          editable={true}
-          // eventDrop={this.handleEventDrop}
-          // eventClick={this.handleEventClick}
-          events={[
-            { title: "event 1", date: "2020-04-14" },
-            { title: "event 2", date: "2020-04-12" },
+          plugins={[
+            dayGridPlugin,
+            timeGridPlugin,
+            interactionPlugin,
+            bootstrapPlugin,
           ]}
-          header={[
-            {
-              left: "prev,next today",
-              center: "title",
-              right: "month,agendaWeek,agendaDay,list",
-            },
-          ]}
+          themeSystem="bootstrap"
+          minTime={"06:00:00"}
+          header={{
+            left: "prev,next today",
+            center: "title",
+            right: "dayGridMonth,timeGridWeek,timeGridDay,listWeek",
+          }}
+          events={events}
         />
+
+        <Button variant="outlined" color="primary" onClick={handleOpen}>
+          Taken this course? Fill out a quick survey for us!
+        </Button>
+        <Dialog
+          open={open}
+          onClose={handleClose}
+          aria-labelledby="form-dialog-title"
+        >
+          <DialogTitle id="form-dialog-title">Course Survey</DialogTitle>
+          <DialogContent>
+            <DialogContentText>
+              Did this course require addition textbook/material costs?
+            </DialogContentText>
+            <ButtonGroup>
+              <Button
+                classname={classes.button}
+                value="true"
+                variant={yesSelected}
+                color="primary"
+                onClick={handleButton}
+              >
+                Yes
+              </Button>
+              <Button
+                classname={classes.button}
+                value="false"
+                variant={noSelected}
+                color="primary"
+                onClick={handleButton2}
+              >
+                No
+              </Button>
+            </ButtonGroup>
+            <DialogContentText>
+              Provide an estimated cost of materials below:
+            </DialogContentText>
+            <CurrencyTextField
+              label="Amount"
+              variant="standard"
+              currencySymbol="$"
+              outputFormat="number"
+              disabled={amtDisabled}
+              defaultValue="0.00"
+              fullWidth
+            />
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleClose} color="primary">
+              Cancel
+            </Button>
+            <Button
+              onClick={handleClose}
+              color="primary"
+              disabled={submit_bool}
+            >
+              Submit
+            </Button>
+          </DialogActions>
+        </Dialog>
       </Paper>
     </Container>
   );
