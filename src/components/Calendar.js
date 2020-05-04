@@ -30,7 +30,7 @@ import AddIcon from "@material-ui/icons/Add";
 import randomColor from "randomcolor";
 
 import { useDispatch, useSelector } from "react-redux";
-import { getDepartments, getCourses, getSections, searchbyID, searchProfessor } from "../actions/";
+import { getDepartments, getCourses, getSections, searchbyID, searchProfessor, searchCourse } from "../actions/";
 import Dialog from "@material-ui/core/Dialog";
 import DialogActions from "@material-ui/core/DialogActions";
 import DialogContent from "@material-ui/core/DialogContent";
@@ -85,9 +85,13 @@ export default (props) => {
   const [open, setOpen] = useState(false);
   const [open2, setOpen2] = useState(false);
   const [open3, setOpen3] = useState(false);
+  const [openRMP, setOpenRMP] = useState(false);
+  const [openRMPData, setOpenRMPData] = useState(false);
+  const [openRequisites, setOpenRequisites] = useState(false);
   const [currency, setCurrency] = useState("");
   const [amtDisabled, setamtDisabled] = useState(false);
   const [submit_bool, setsubmit_bool] = useState(true);
+  const [submit_bool_rmp, setsubmit_bool_rmp] = useState(true);
   const [yesSelected, setyesSelected] = useState("contained");
   const [noSelected, setnoSelected] = useState("outlined");
 
@@ -95,8 +99,12 @@ export default (props) => {
   const [selectedCourse, setSelectedCourse] = useState("");
   const [selectedSection, setSelectedSection] = useState("");
   const [selectedEvent, setSelectedEvent] = useState("");
+  const [selectedProfessor, setSelectedProfessor] = useState("");
+  const [selectedRMPProfessor, setSelectedRMPProfessor] = useState("");
   const [section, setSection] = useState("");
+  const [course, setCourse] = useState("");
   const [events, setEvents] = useState([]);
+  const [RMPProf, setRMPProf] = useState("");
 
   const [selectedSDate, setSelectedSDate] = useState(new Date());
   const [selectedEDate, setSelectedEDate] = useState(new Date());
@@ -115,6 +123,29 @@ export default (props) => {
   const handleOpen = () => {
     setOpen(true);
   };
+
+  const handleOpenRMP = () => {
+    setOpenRMP(true);
+    setSelectedProfessor(section["Instructor Lname"]);
+  }
+
+  const handleCloseRMP = () => {
+    setOpenRMP(false);
+  }
+
+  const handleCloseRMPData = () => {
+    setOpenRMPData(false);
+  }
+
+  const handleOpenRequisites = () => {
+    setOpenRequisites(true);
+    dispatch(searchCourse(section["Course"]));
+    setCourse(courses[0]);
+  }
+
+  const handleCloseRequisities = () => {
+    setOpenRequisites(false);
+  }
 
   const handleClose = () => {
     setOpen(false);
@@ -190,6 +221,12 @@ export default (props) => {
     alert("Start date: " + selectedSDate + "\nEnd date: " + selectedEDate);
     //dispatch to database
     setOpen3(false);
+  }
+
+  const handleRMPSubmit = (e) => {
+    setOpenRMP(false);
+    setOpenRMPData(true);
+    setRMPProf(professors.filter((profess) => profess.id === selectedRMPProfessor)[0]);
   }
 
   const handleChecked = (event) => {
@@ -291,6 +328,12 @@ export default (props) => {
        dispatch(searchbyID(selectedEvent));
     }
   }, [selectedEvent, dispatch]);
+
+  useEffect(() => {
+    if (selectedProfessor) {
+       dispatch(searchProfessor(selectedProfessor));
+    }
+  }, [selectedProfessor, dispatch]);
 
   function ListItemLink(props) {
     return <ListItem button component="a" {...props} />;
@@ -449,9 +492,12 @@ export default (props) => {
                 {convertFrom24To12Format(section["Start Time"])} - {convertFrom24To12Format(section["End Time"])} - {section["Location"]} <br></br>
                 <Box display="inline">Dates: </Box> {section["Start Date"]} - {section["End Date"]} <br></br>
                 <Box ml={-0.5}>
-                <Button size="small" color="primary" onClick={handleOpen}>
+                <Button size="small" color="primary" onClick={handleOpenRMP}>
                   View RateMyProfessor Info
-                </Button>
+                </Button><br></br>
+                <Button size="small" color="primary" onClick={handleOpenRequisites}>
+                  View Pre/Co-requisite Info
+              </Button>
                 </Box>
               </Box>
             </Box>
@@ -657,6 +703,99 @@ export default (props) => {
             </Button>
         </DialogActions>
         </Dialog>
+
+        <Dialog
+          open={openRMP}
+          onClose={handleCloseRMP}
+          aria-labelledby="form-dialog-title"
+        >
+          <DialogTitle id="form-dialog-title">RateMyProfessor Data</DialogTitle>
+          <DialogContent>
+            <DialogContentText>
+              Select the correct professor from the list below:
+            </DialogContentText>
+
+            <FormControl
+              fullWidth
+              className={classes.formControl}
+              disabled={professors.length <= 0}
+            >
+              <InputLabel id="label">Select Professor</InputLabel>
+              <Select
+                labelId="label"
+                id="select"
+                value={selectedRMPProfessor}
+                onChange={(event) => {
+                  setSelectedRMPProfessor(event.target.value);
+                  setsubmit_bool_rmp(false);
+                }}
+              >
+                {professors?.map((professor) => (
+                  <MenuItem value={professor.id} key={professor.id}>
+                    {professor["First Name"]} {professor["Last Name"]}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </DialogContent>
+
+          <DialogActions>
+            <Button onClick={handleClose} color="primary">
+              Cancel
+            </Button>
+            <Button
+              onClick={handleRMPSubmit}
+              color="primary"
+              disabled={submit_bool_rmp}
+            >
+              Submit
+            </Button>
+          </DialogActions>
+        </Dialog>
+
+        <Dialog
+        open={openRMPData}
+        onClose={handleCloseRMPData}
+        aria-labelledby="form-dialog-title"
+      >
+        <DialogTitle id="form-dialog-title">RateMyProfessor Data for {RMPProf["First Name"]} {RMPProf["Last Name"]}</DialogTitle>
+        <DialogContent>
+          <Box display="flex" p={0.5}>
+          <Box mr={15}>
+            <Box fontWeight="fontWeightBold" display="inline">Department: </Box> {RMPProf["Department"]} <br></br>
+            <Box fontWeight="fontWeightBold" display="inline">Institution: </Box> {RMPProf["Institution"]} <br></br>
+            <Box fontWeight="fontWeightBold" display="inline">Average Rating: </Box> {RMPProf["Average Rating"]} / 5 <br></br>
+            <Box fontWeight="fontWeightBold" display="inline">Level of Difficulty: </Box> {RMPProf["Level of Difficulty"]} / 5 <br></br>
+            <Box fontWeight="fontWeightBold" display="inline">Would take again: </Box> {RMPProf["Would take again"]} <br></br>
+            <Box fontWeight="fontWeightBold" display="inline">Based on: </Box> {RMPProf["Number of Ratings"]} Ratings<br></br>
+            <Box fontWeight="fontWeightBold" display="inline">Most Helpful Rating: </Box> {RMPProf["Most Helpful Rating"]} <br></br>
+          </Box>
+          </Box>
+        </DialogContent>
+
+        <DialogActions>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog
+      open={openRequisites}
+      onClose={handleCloseRequisities}
+      aria-labelledby="form-dialog-title"
+    >
+      <DialogTitle id="form-dialog-title">{section["Course"]} Prequisites and Corequisites</DialogTitle>
+      <DialogContent>
+        <Box display="flex" p={0.5}>
+        <Box mr={15}>
+          <Box fontWeight="fontWeightBold" display="inline">Prerequisites: </Box> {course["Prerequisites"]} <br></br>
+          <Box fontWeight="fontWeightBold" display="inline">Corequisites: </Box> {course["Corequisites"]} <br></br>
+        </Box>
+        </Box>
+      </DialogContent>
+
+      <DialogActions>
+      </DialogActions>
+    </Dialog>
+
       </Paper>
     </Container>
     </div>

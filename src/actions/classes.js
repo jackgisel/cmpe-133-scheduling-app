@@ -176,7 +176,7 @@ export const searchbyID = (sectionId) => async (dispatch) => {
     .catch((err) => {
       dispatch(fetchSectionsError(err));
     });
-}
+};
 
 export const searchProfessor = (Lname) => async (dispatch) => {
   dispatch(fetchProfessors());
@@ -196,5 +196,26 @@ export const searchProfessor = (Lname) => async (dispatch) => {
     })
     .catch((err) => {
       dispatch(fetchProfessorsError(err));
+    });
+};
+
+export const searchCourse = (CName) => async (dispatch) => {
+  dispatch(fetchCourses());
+  await db
+    .collection("SJSU - Courses")
+    .where("Course", "==", CName)
+    .get()
+    .then(function (querySnapshot) {
+      let courses = [];
+      querySnapshot.forEach((doc) =>
+        courses.push({
+          id: doc.id,
+          ...doc.data(),
+        })
+      );
+      dispatch(fetchCoursesSuccess(courses));
+    })
+    .catch((err) => {
+      dispatch(fetchCoursesError(err));
     });
 };
