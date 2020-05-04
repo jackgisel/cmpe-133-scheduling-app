@@ -171,7 +171,6 @@ export const searchbyID = (sectionId) => async (dispatch) => {
           ...doc.data(),
         })
         dispatch(fetchSectionsSuccess(sections));
-        alert(sectionId);
         //return Promise.resolve();
     })
     .catch((err) => {
