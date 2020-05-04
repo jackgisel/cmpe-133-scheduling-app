@@ -231,9 +231,31 @@ export default (props) => {
     setRMPProf(professors.filter((profess) => profess.id === selectedRMPProfessor)[0]);
   }
 
+  const handleRMPClose = (e) => {
+    setOpenRMP(false);
+  }
+
   const handleChecked = (event) => {
     setDOW({ ...DOW, [event.target.name]: event.target.checked });
   };
+
+  function getPrereqs(course) {
+    if(course["Prerequisites"] === ""){
+      return "No data/prerequisites required for this course";
+    }
+    else{
+      return course["Prerequisites"];
+    }
+  }
+
+  function getCoreqs(course) {
+    if(course["Corequisites"] === ""){
+      return "No data/corequisites required for this course";
+    }
+    else{
+      return course["Corequisites"];
+    }
+  }
 
   function convertFrom24To12Format(time24) {
     let startString = "" + time24;
@@ -817,7 +839,7 @@ export default (props) => {
           </DialogContent>
 
           <DialogActions>
-            <Button onClick={handleClose} color="primary">
+            <Button onClick={handleRMPClose} color="primary">
               Cancel
             </Button>
             <Button
@@ -862,9 +884,9 @@ export default (props) => {
       <DialogTitle id="form-dialog-title">{section["Course"]} Prequisites and Corequisites</DialogTitle>
       <DialogContent>
         <Box display="flex" p={0.5}>
-        <Box mr={15}>
-          <Box fontWeight="fontWeightBold" display="inline">Prerequisites: </Box> {course["Prerequisites"]} <br></br>
-          <Box fontWeight="fontWeightBold" display="inline">Corequisites: </Box> {course["Corequisites"]} <br></br>
+        <Box>
+          <Box fontWeight="fontWeightBold" display="inline">Prerequisites: </Box> {getPrereqs(course)} <br></br>
+          <Box fontWeight="fontWeightBold" display="inline">Corequisites: </Box> {getCoreqs(course)} <br></br>
         </Box>
         </Box>
       </DialogContent>
