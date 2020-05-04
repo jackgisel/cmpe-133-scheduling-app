@@ -94,10 +94,12 @@ export default (props) => {
   const [submit_bool_rmp, setsubmit_bool_rmp] = useState(true);
   const [yesSelected, setyesSelected] = useState("contained");
   const [noSelected, setnoSelected] = useState("outlined");
+  const [hasLab, setHasLab] = useState(false);
 
   const [selectedDepartment, setSelectedDepartment] = useState("");
   const [selectedCourse, setSelectedCourse] = useState("");
   const [selectedSection, setSelectedSection] = useState("");
+  const [selectedLab, setSelectedLab] = useState("");
   const [selectedEvent, setSelectedEvent] = useState("");
   const [selectedProfessor, setSelectedProfessor] = useState("");
   const [selectedRMPProfessor, setSelectedRMPProfessor] = useState("");
@@ -301,10 +303,54 @@ export default (props) => {
       }),
     };
 
-    setEvents([...events, newEvent]);
+    if(hasLab){
+      let lab = sections.filter((sec) => sec.id === selectedLab)[0];
+      let startString2 = lab["Start Time"].toString().split("");
+      let start2 =
+        startString2.length === 3
+          ? "0" + startString2[0] + ":" + startString2[1] + startString2[2]
+          : startString2[0] +
+            startString2[1] +
+            ":" +
+            startString2[2] +
+            startString2[3];
+
+      let endString2 = lab["End Time"].toString().split("");
+      let end2 =
+        endString2.length === 3
+          ? "0" + endString2[0] + ":" + endString2[1] + endString2[2]
+          : endString2[0] + endString2[1] + ":" + endString2[2] + endString2[3];
+
+      let startRecurString2 = lab["Start Date"].toString().split("/");
+      let startRecS2 = "20" + startRecurString2[2] + "-" + startRecurString2[0] + "-" + startRecurString2[1];
+
+      let endRecurString2 = lab["End Date"].toString().split("/");
+      let endRecS2 = "20" + endRecurString2[2] + "-" + endRecurString2[0] + "-" + endRecurString2[1];
+
+      let newEvent2 = {
+        ...section,
+        title: lab.id,
+        daysOfWeek: JSON.parse(lab["Daysofweek"]),
+        startTime: start2,
+        endTime: end2,
+        startRecur: startRecS2,
+        endRecur: endRecS2,
+        id: lab.Code,
+        backgroundColor: randomColor({
+          luminosity: 'light',
+        }),
+      };
+      setEvents([...events, newEvent, newEvent2]);
+    }
+    else{
+      setEvents([...events, newEvent]);
+    }
+
     setSelectedDepartment("");
     setSelectedCourse("");
     setSelectedSection("");
+    setSelectedLab("");
+    setHasLab(false);
   }
 
   useEffect(() => {
@@ -320,12 +366,16 @@ export default (props) => {
   useEffect(() => {
     if (selectedCourse) {
       dispatch(getSections(selectedCourse));
+      let course = courses.filter((course) => course.id === selectedCourse)[0];
+      let lab = JSON.parse(course["hasLab"]);
+      setHasLab(lab);
     }
-  }, [selectedCourse, dispatch]);
+  }, [selectedCourse, courses, dispatch]);
 
   useEffect(() => {
     if (selectedEvent) {
        dispatch(searchbyID(selectedEvent));
+       //This needs to wait to finish, takes too long. maybe narrow the search.
     }
   }, [selectedEvent, dispatch]);
 
@@ -411,12 +461,39 @@ export default (props) => {
                 onChange={(event) => {setSelectedSection(event.target.value); console.log(event.target.value);}}
               >
                 {sections?.map((section) => {
+                  if(section["Type"] !== "LAB"){
                   return (
                     <MenuItem key={section.id} value={section.id}>
                     Section {section["Section"]}, {section["Type"]}, Day & Time: {section["Days"]} {section["Start Time"]}-{section["End Time"]}, Instructor: {section["Instructor Fname"]}.
                     {section["Instructor Lname"]}, Seats Available: {section["Total seats"] - section["Seats taken"]}
                     </MenuItem>
-                  );
+                  )};
+                })}
+              </Select>
+            </FormControl>
+
+            <br></br>
+
+            <FormControl
+              fullWidth
+              className={classes.formControl}
+              disabled={!hasLab}
+            >
+              <InputLabel id="label3">Select Lab Section</InputLabel>
+              <Select
+                labelId="label3"
+                id="select"
+                value={selectedLab}
+                onChange={(event) => {setSelectedLab(event.target.value); console.log(event.target.value);}}
+              >
+                {sections?.map((section) => {
+                  if(section["Type"] === "LAB"){
+                  return (
+                    <MenuItem key={section.id} value={section.id}>
+                    Section {section["Section"]}, {section["Type"]}, Day & Time: {section["Days"]} {section["Start Time"]}-{section["End Time"]}, Instructor: {section["Instructor Fname"]}.
+                    {section["Instructor Lname"]}, Seats Available: {section["Total seats"] - section["Seats taken"]}
+                    </MenuItem>
+                  )};
                 })}
               </Select>
             </FormControl>
