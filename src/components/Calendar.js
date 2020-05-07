@@ -285,6 +285,41 @@ export default (props) => {
   function handleCustomEvent() {
     setOpen3(true);
   }
+
+  function checkConflict(){
+    let section = sections.filter((sec) => sec.id === selectedSection)[0];
+    let startString = section["Start Time"].toString().split("");
+    let start =
+      startString.length === 3
+        ? "0" + startString[0] + ":" + startString[1] + startString[2]
+        : startString[0] +
+          startString[1] +
+          ":" +
+          startString[2] +
+          startString[3];
+    let time = start.split(":");
+    let hours = parseInt(time[0]);
+    let minutes = parseInt(time[1]);
+    let total = (hours * 60) + minutes;
+
+    events.forEach(event => {
+      let time_s = event["startTime"].split(":");
+      let hours_s = parseInt(time_s[0]);
+      let minutes_s = parseInt(time_s[1]);
+      let total_s = (hours_s * 60) + minutes_s;
+
+      let time_e = event["endTime"].split(":");
+      let hours_e = parseInt(time_e[0]);
+      let minutes_e = parseInt(time_e[1]);
+      let total_e = (hours_e * 60) + minutes_e;
+
+      if((total >= total_s) && total <= total_e){
+        alert("oh lord, we gots a time conflict");
+      }
+    });
+
+    alert("hours = " + hours + "\nmins = " + minutes);
+  }
   
 
   function handleOnAddEvent() {
@@ -363,10 +398,10 @@ export default (props) => {
         }),
       };
 
-      
       setEvents([...events, newEvent, newEvent2]);
     }
     else{
+      checkConflict();
       setEvents([...events, newEvent]);
     }
 
