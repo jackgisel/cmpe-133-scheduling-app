@@ -362,6 +362,8 @@ export default (props) => {
           luminosity: 'light',
         }),
       };
+
+      
       setEvents([...events, newEvent, newEvent2]);
     }
     else{
@@ -483,7 +485,7 @@ export default (props) => {
                 onChange={(event) => {setSelectedSection(event.target.value); console.log(event.target.value);}}
               >
                 {sections?.map((section) => {
-                  if(section["Type"] !== "LAB"){
+                  if((section["Type"] !== "LAB") && (section["Type"] !== "SEM")){
                   return (
                     <MenuItem key={section.id} value={section.id}>
                     Section {section["Section"]}, {section["Type"]}, Day & Time: {section["Days"]} {section["Start Time"]}-{section["End Time"]}, Instructor: {section["Instructor Fname"]}.
@@ -509,7 +511,7 @@ export default (props) => {
                 onChange={(event) => {setSelectedLab(event.target.value); console.log(event.target.value);}}
               >
                 {sections?.map((section) => {
-                  if(section["Type"] === "LAB"){
+                  if((section["Type"] === "LAB") || (section["Type"] === "SEM")){
                   return (
                     <MenuItem key={section.id} value={section.id}>
                     Section {section["Section"]}, {section["Type"]}, Day & Time: {section["Days"]} {section["Start Time"]}-{section["End Time"]}, Instructor: {section["Instructor Fname"]}.
