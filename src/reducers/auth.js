@@ -6,8 +6,10 @@ import {
   LOGOUT_SUCCESS,
   LOGOUT_FAILURE,
   VERIFY_REQUEST,
-  VERIFY_SUCCESS
-} from '../actions/';
+  VERIFY_SUCCESS,
+  FOUND_USER,
+  ADDED_EVENT,
+} from "../actions/";
 
 export default (
   state = {
@@ -17,7 +19,10 @@ export default (
     loginError: false,
     logoutError: false,
     isAuthenticated: false,
-    user: {}
+    user: {
+      email: "",
+      events: [],
+    },
   },
   action
 ) => {
@@ -26,52 +31,69 @@ export default (
       return {
         ...state,
         isLoggingIn: true,
-        loginError: false
+        loginError: false,
+      };
+    case FOUND_USER:
+      return {
+        ...state,
+        user: {
+          ...state.user,
+          ...action.user,
+        },
       };
     case LOGIN_SUCCESS:
       return {
         ...state,
         isLoggingIn: false,
         isAuthenticated: true,
-        user: action.user
+        user: action.user,
       };
     case LOGIN_FAILURE:
       return {
         ...state,
         isLoggingIn: false,
         isAuthenticated: false,
-        loginError: true
+        loginError: true,
       };
     case LOGOUT_REQUEST:
       return {
         ...state,
         isLoggingOut: true,
-        logoutError: false
+        logoutError: false,
       };
     case LOGOUT_SUCCESS:
       return {
         ...state,
         isLoggingOut: false,
         isAuthenticated: false,
-        user: {}
+        user: {},
       };
     case LOGOUT_FAILURE:
       return {
         ...state,
         isLoggingOut: false,
-        logoutError: true
+        logoutError: true,
       };
     case VERIFY_REQUEST:
       return {
         ...state,
         isVerifying: true,
-        verifyingError: false
+        verifyingError: false,
       };
     case VERIFY_SUCCESS:
       return {
         ...state,
-        isVerifying: false
+        isVerifying: false,
       };
+    case ADDED_EVENT: {
+      return {
+        ...state,
+        user: {
+          ...state.user,
+          events: [...state.user.events, action.event],
+        },
+      };
+    }
     default:
       return state;
   }

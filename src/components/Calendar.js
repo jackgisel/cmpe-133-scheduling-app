@@ -18,19 +18,27 @@ import {
   Checkbox,
   TextField,
 } from "@material-ui/core";
-import 'date-fns';
-import DateFnsUtils from '@date-io/date-fns';
+import "date-fns";
+import DateFnsUtils from "@date-io/date-fns";
 import {
   MuiPickersUtilsProvider,
   KeyboardTimePicker,
   KeyboardDatePicker,
-} from '@material-ui/pickers';
+} from "@material-ui/pickers";
 import AddIcon from "@material-ui/icons/Add";
 //import randomHexColor from "random-hex-color";
 import randomColor from "randomcolor";
 
 import { useDispatch, useSelector } from "react-redux";
-import { getDepartments, getCourses, getSections, searchbyID, searchProfessor, searchCourse } from "../actions/";
+import {
+  getDepartments,
+  getCourses,
+  getSections,
+  searchbyID,
+  searchProfessor,
+  searchCourse,
+  addEvent,
+} from "../actions/";
 import Dialog from "@material-ui/core/Dialog";
 import DialogActions from "@material-ui/core/DialogActions";
 import DialogContent from "@material-ui/core/DialogContent";
@@ -71,7 +79,7 @@ const useStyles = makeStyles((theme) => ({
   },
   content: {
     marginBottom: -50,
-  }
+  },
 }));
 
 export default (props) => {
@@ -105,7 +113,10 @@ export default (props) => {
   const [selectedRMPProfessor, setSelectedRMPProfessor] = useState("");
   const [section, setSection] = useState("");
   const [course, setCourse] = useState("");
-  const [events, setEvents] = useState([]);
+  const { events } = useSelector((state) => {
+    if (state.auth.user) return state.auth.user;
+    else return [];
+  });
   const [RMPProf, setRMPProf] = useState("");
 
   const [selectedSDate, setSelectedSDate] = useState(new Date());
@@ -120,7 +131,17 @@ export default (props) => {
     Saturday: false,
     Sunday: false,
   });
-  const { Monday, Tuesday, Wednesday, Thursday, Friday, Saturday, Sunday } = DOW;
+  const {
+    Monday,
+    Tuesday,
+    Wednesday,
+    Thursday,
+    Friday,
+    Saturday,
+    Sunday,
+  } = DOW;
+
+  useEffect(() => console.log(events), [events]);
 
   const handleOpen = () => {
     setOpen(true);
@@ -129,25 +150,25 @@ export default (props) => {
   const handleOpenRMP = () => {
     setOpenRMP(true);
     setSelectedProfessor(section["Instructor Lname"]);
-  }
+  };
 
   const handleCloseRMP = () => {
     setOpenRMP(false);
-  }
+  };
 
   const handleCloseRMPData = () => {
     setOpenRMPData(false);
-  }
+  };
 
   const handleOpenRequisites = () => {
     setOpenRequisites(true);
     dispatch(searchCourse(section["Course"]));
     setCourse(courses[0]);
-  }
+  };
 
   const handleCloseRequisities = () => {
     setOpenRequisites(false);
-  }
+  };
 
   const handleClose = () => {
     setOpen(false);
@@ -159,8 +180,14 @@ export default (props) => {
 
   const handleClose3 = () => {
     setOpen3(false);
-    setDOW( {
-      Monday: false, Tuesday: false, Wednesday: false, Thursday: false, Friday: false, Saturday: false, Sunday: false
+    setDOW({
+      Monday: false,
+      Tuesday: false,
+      Wednesday: false,
+      Thursday: false,
+      Friday: false,
+      Saturday: false,
+      Sunday: false,
     });
     setSelectedSDate(new Date());
     setSelectedEDate(new Date());
@@ -217,66 +244,65 @@ export default (props) => {
     console.log("Cost: " + currency);
     //dispatch to database
     setOpen(false);
-  }
+  };
 
   const handleSubmit2 = (e) => {
     alert("Start date: " + selectedSDate + "\nEnd date: " + selectedEDate);
     //dispatch to database
     setOpen3(false);
-  }
+  };
 
   const handleRMPSubmit = (e) => {
     setOpenRMP(false);
     setOpenRMPData(true);
-    setRMPProf(professors.filter((profess) => profess.id === selectedRMPProfessor)[0]);
-  }
+    setRMPProf(
+      professors.filter((profess) => profess.id === selectedRMPProfessor)[0]
+    );
+  };
 
   const handleRMPClose = (e) => {
     setOpenRMP(false);
-  }
+  };
 
   const handleChecked = (event) => {
     setDOW({ ...DOW, [event.target.name]: event.target.checked });
   };
 
   function getPrereqs(course) {
-    if(course["Prerequisites"] === ""){
+    if (course["Prerequisites"] === "") {
       return "No data/prerequisites required for this course";
-    }
-    else{
+    } else {
       return course["Prerequisites"];
     }
   }
 
   function getCoreqs(course) {
-    if(course["Corequisites"] === ""){
+    if (course["Corequisites"] === "") {
       return "No data/corequisites required for this course";
-    }
-    else{
+    } else {
       return course["Corequisites"];
     }
   }
 
   function convertFrom24To12Format(time24) {
     let startString = "" + time24;
-    try{
+    try {
       startString = startString.split("");
       let start =
-      startString.length === 3
-        ? "0" + startString[0] + ":" + startString[1] + startString[2]
-        : startString[0] +
-          startString[1] +
-          ":" +
-          startString[2] +
-          startString[3];
+        startString.length === 3
+          ? "0" + startString[0] + ":" + startString[1] + startString[2]
+          : startString[0] +
+            startString[1] +
+            ":" +
+            startString[2] +
+            startString[3];
 
       const [sHours, minutes] = start.match(/([0-9]{1,2}):([0-9]{2})/).slice(1);
-      const period = +sHours < 12 ? 'AM' : 'PM';
+      const period = +sHours < 12 ? "AM" : "PM";
       const hours = +sHours % 12 || 12;
-    
+
       return `${hours}:${minutes} ${period}`;
-    }
-    catch{
+    } catch {
       startString = "";
       return null;
     }
@@ -286,7 +312,7 @@ export default (props) => {
     setOpen3(true);
   }
 
-  function checkConflict(){
+  function checkConflict() {
     let section = sections.filter((sec) => sec.id === selectedSection)[0];
     let startString = section["Start Time"].toString().split("");
     let start =
@@ -300,27 +326,26 @@ export default (props) => {
     let time = start.split(":");
     let hours = parseInt(time[0]);
     let minutes = parseInt(time[1]);
-    let total = (hours * 60) + minutes;
+    let total = hours * 60 + minutes;
 
-    events.forEach(event => {
+    events.forEach((event) => {
       let time_s = event["startTime"].split(":");
       let hours_s = parseInt(time_s[0]);
       let minutes_s = parseInt(time_s[1]);
-      let total_s = (hours_s * 60) + minutes_s;
+      let total_s = hours_s * 60 + minutes_s;
 
       let time_e = event["endTime"].split(":");
       let hours_e = parseInt(time_e[0]);
       let minutes_e = parseInt(time_e[1]);
-      let total_e = (hours_e * 60) + minutes_e;
+      let total_e = hours_e * 60 + minutes_e;
 
-      if((total >= total_s) && total <= total_e){
+      if (total >= total_s && total <= total_e) {
         alert("oh lord, we gots a time conflict");
       }
     });
 
     alert("hours = " + hours + "\nmins = " + minutes);
   }
-  
 
   function handleOnAddEvent() {
     let section = sections.filter((sec) => sec.id === selectedSection)[0];
@@ -341,10 +366,22 @@ export default (props) => {
         : endString[0] + endString[1] + ":" + endString[2] + endString[3];
 
     let startRecurString = section["Start Date"].toString().split("/");
-    let startRecS = "20" + startRecurString[2] + "-" + startRecurString[0] + "-" + startRecurString[1];
+    let startRecS =
+      "20" +
+      startRecurString[2] +
+      "-" +
+      startRecurString[0] +
+      "-" +
+      startRecurString[1];
 
     let endRecurString = section["End Date"].toString().split("/");
-    let endRecS = "20" + endRecurString[2] + "-" + endRecurString[0] + "-" + endRecurString[1];
+    let endRecS =
+      "20" +
+      endRecurString[2] +
+      "-" +
+      endRecurString[0] +
+      "-" +
+      endRecurString[1];
 
     let newEvent = {
       ...section,
@@ -356,11 +393,11 @@ export default (props) => {
       endRecur: endRecS,
       id: section.Code,
       backgroundColor: randomColor({
-        luminosity: 'light',
+        luminosity: "light",
       }),
     };
 
-    if(hasLab){
+    if (hasLab) {
       let lab = sections.filter((sec) => sec.id === selectedLab)[0];
       let startString2 = lab["Start Time"].toString().split("");
       let start2 =
@@ -379,10 +416,22 @@ export default (props) => {
           : endString2[0] + endString2[1] + ":" + endString2[2] + endString2[3];
 
       let startRecurString2 = lab["Start Date"].toString().split("/");
-      let startRecS2 = "20" + startRecurString2[2] + "-" + startRecurString2[0] + "-" + startRecurString2[1];
+      let startRecS2 =
+        "20" +
+        startRecurString2[2] +
+        "-" +
+        startRecurString2[0] +
+        "-" +
+        startRecurString2[1];
 
       let endRecurString2 = lab["End Date"].toString().split("/");
-      let endRecS2 = "20" + endRecurString2[2] + "-" + endRecurString2[0] + "-" + endRecurString2[1];
+      let endRecS2 =
+        "20" +
+        endRecurString2[2] +
+        "-" +
+        endRecurString2[0] +
+        "-" +
+        endRecurString2[1];
 
       let newEvent2 = {
         ...section,
@@ -394,15 +443,17 @@ export default (props) => {
         endRecur: endRecS2,
         id: lab.Code,
         backgroundColor: randomColor({
-          luminosity: 'light',
+          luminosity: "light",
         }),
       };
 
-      setEvents([...events, newEvent, newEvent2]);
-    }
-    else{
+      // setEvents([...events, newEvent, newEvent2]);
+      dispatch(addEvent(newEvent));
+      dispatch(addEvent(newEvent2));
+    } else {
       checkConflict();
-      setEvents([...events, newEvent]);
+      // setEvents([...events, newEvent]);
+      dispatch(addEvent(newEvent));
     }
 
     setSelectedDepartment("");
@@ -433,14 +484,14 @@ export default (props) => {
 
   useEffect(() => {
     if (selectedEvent) {
-       dispatch(searchbyID(selectedEvent));
-       //This needs to wait to finish, takes too long. maybe narrow the search.
+      dispatch(searchbyID(selectedEvent));
+      //This needs to wait to finish, takes too long. maybe narrow the search.
     }
   }, [selectedEvent, dispatch]);
 
   useEffect(() => {
     if (selectedProfessor) {
-       dispatch(searchProfessor(selectedProfessor));
+      dispatch(searchProfessor(selectedProfessor));
     }
   }, [selectedProfessor, dispatch]);
 
@@ -450,292 +501,284 @@ export default (props) => {
 
   return (
     <div>
-    <Fab color="primary" aria-label="add" className={classes.fab} variant="extended" onClick={handleCustomEvent}>
-    <AddIcon /> Add a custom event
-    </Fab>
-    <Container className={classes.container} component="schedule" maxWidth="md">
-      <Paper>
-        <div>
-          <div className={classes.padded}>
-            <FormControl
-              fullWidth
-              className={classes.formControl}
-              disabled={departments.length <= 0}
-            >
-              <InputLabel id="label">Select Department</InputLabel>
-              <Select
-                labelId="label"
-                id="select"
-                value={selectedDepartment}
-                onChange={(event) => {
-                  setSelectedDepartment(event.target.value);
-                  setSelectedCourse(undefined);
-                  setSelectedSection(undefined);
-                }}
+      <Fab
+        color="primary"
+        aria-label="add"
+        className={classes.fab}
+        variant="extended"
+        onClick={handleCustomEvent}
+      >
+        <AddIcon /> Add a custom event
+      </Fab>
+      <Container
+        className={classes.container}
+        component="schedule"
+        maxWidth="md"
+      >
+        <Paper>
+          <div>
+            <div className={classes.padded}>
+              <FormControl
+                fullWidth
+                className={classes.formControl}
+                disabled={departments.length <= 0}
               >
-                {departments?.map((department) => (
-                  <MenuItem value={department.id} key={department.id}>
-                    {department["Department Name"]}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-
-            <br></br>
-            <FormControl
-              fullWidth
-              className={classes.formControl}
-              disabled={courses.length <= 0}
-            >
-              <InputLabel id="label2">Select Course</InputLabel>
-              <Select
-                labelId="label2"
-                id="select"
-                value={selectedCourse}
-                onChange={(event) => {
-                  setSelectedCourse(event.target.value);
-                  setSelectedSection(undefined);
-                }}
-              >
-                {courses?.map((course) => (
-                  <MenuItem key={course.id} value={course.id}>
-                    {course["Course"]} {course["Title"]}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-
-            <br></br>
-
-            <FormControl
-              fullWidth
-              className={classes.formControl}
-              disabled={sections.length <= 0}
-            >
-              <InputLabel id="label3">Select Section</InputLabel>
-              <Select
-                labelId="label3"
-                id="select"
-                value={selectedSection}
-                onChange={(event) => {setSelectedSection(event.target.value); console.log(event.target.value);}}
-              >
-                {sections?.map((section) => {
-                  if((section["Type"] !== "LAB") && (section["Type"] !== "SEM")){
-                  return (
-                    <MenuItem key={section.id} value={section.id}>
-                    Section {section["Section"]}, {section["Type"]}, Day & Time: {section["Days"]} {section["Start Time"]}-{section["End Time"]}, Instructor: {section["Instructor Fname"]}.
-                    {section["Instructor Lname"]}, Seats Available: {section["Total seats"] - section["Seats taken"]}
+                <InputLabel id="label">Select Department</InputLabel>
+                <Select
+                  labelId="label"
+                  id="select"
+                  value={selectedDepartment}
+                  onChange={(event) => {
+                    setSelectedDepartment(event.target.value);
+                    setSelectedCourse(undefined);
+                    setSelectedSection(undefined);
+                  }}
+                >
+                  {departments?.map((department) => (
+                    <MenuItem value={department.id} key={department.id}>
+                      {department["Department Name"]}
                     </MenuItem>
-                  )};
-                })}
-              </Select>
-            </FormControl>
+                  ))}
+                </Select>
+              </FormControl>
 
-            <br></br>
-
-            <FormControl
-              fullWidth
-              className={classes.formControl}
-              disabled={!hasLab}
-            >
-              <InputLabel id="label3">Select Lab Section</InputLabel>
-              <Select
-                labelId="label3"
-                id="select"
-                value={selectedLab}
-                onChange={(event) => {setSelectedLab(event.target.value); console.log(event.target.value);}}
+              <br></br>
+              <FormControl
+                fullWidth
+                className={classes.formControl}
+                disabled={courses.length <= 0}
               >
-                {sections?.map((section) => {
-                  if((section["Type"] === "LAB") || (section["Type"] === "SEM")){
-                  return (
-                    <MenuItem key={section.id} value={section.id}>
-                    Section {section["Section"]}, {section["Type"]}, Day & Time: {section["Days"]} {section["Start Time"]}-{section["End Time"]}, Instructor: {section["Instructor Fname"]}.
-                    {section["Instructor Lname"]}, Seats Available: {section["Total seats"] - section["Seats taken"]}
+                <InputLabel id="label2">Select Course</InputLabel>
+                <Select
+                  labelId="label2"
+                  id="select"
+                  value={selectedCourse}
+                  onChange={(event) => {
+                    setSelectedCourse(event.target.value);
+                    setSelectedSection(undefined);
+                  }}
+                >
+                  {courses?.map((course) => (
+                    <MenuItem key={course.id} value={course.id}>
+                      {course["Course"]} {course["Title"]}
                     </MenuItem>
-                  )};
-                })}
-              </Select>
-            </FormControl>
+                  ))}
+                </Select>
+              </FormControl>
 
-            <Button
-              type="button"
-              fullWidth
-              variant="contained"
-              color="primary"
-              onClick={handleOnAddEvent}
-              className={classes.addcourse}
-            >
-              Add course to schedule
-            </Button>
-          
-            <div>
-              <List component="nav" aria-label="secondary mailbox folders">
-                <ListItem button>
-                  <ListItemText primary="Trash" />
-                </ListItem>
-                <ListItemLink href="#simple-list">
-                  <ListItemText primary="Spam" />
-                </ListItemLink>
-              </List>
+              <br></br>
+
+              <FormControl
+                fullWidth
+                className={classes.formControl}
+                disabled={sections.length <= 0}
+              >
+                <InputLabel id="label3">Select Section</InputLabel>
+                <Select
+                  labelId="label3"
+                  id="select"
+                  value={selectedSection}
+                  onChange={(event) => {
+                    setSelectedSection(event.target.value);
+                    console.log(event.target.value);
+                  }}
+                >
+                  {sections?.map((section) => {
+                    if (
+                      section["Type"] !== "LAB" &&
+                      section["Type"] !== "SEM"
+                    ) {
+                      return (
+                        <MenuItem key={section.id} value={section.id}>
+                          Section {section["Section"]}, {section["Type"]}, Day &
+                          Time: {section["Days"]} {section["Start Time"]}-
+                          {section["End Time"]}, Instructor:{" "}
+                          {section["Instructor Fname"]}.
+                          {section["Instructor Lname"]}, Seats Available:{" "}
+                          {section["Total seats"] - section["Seats taken"]}
+                        </MenuItem>
+                      );
+                    }
+                  })}
+                </Select>
+              </FormControl>
+
+              <br></br>
+
+              {hasLab && (
+                <FormControl
+                  fullWidth
+                  className={classes.formControl}
+                  disabled={!hasLab}
+                >
+                  <InputLabel id="label3">Select Lab Section</InputLabel>
+                  <Select
+                    labelId="label3"
+                    id="select"
+                    value={selectedLab}
+                    onChange={(event) => {
+                      setSelectedLab(event.target.value);
+                      console.log(event.target.value);
+                    }}
+                  >
+                    {sections?.map((section) => {
+                      if (
+                        section["Type"] === "LAB" ||
+                        section["Type"] === "SEM"
+                      ) {
+                        return (
+                          <MenuItem key={section.id} value={section.id}>
+                            Section {section["Section"]}, {section["Type"]}, Day
+                            & Time: {section["Days"]} {section["Start Time"]}-
+                            {section["End Time"]}, Instructor:{" "}
+                            {section["Instructor Fname"]}.
+                            {section["Instructor Lname"]}, Seats Available:{" "}
+                            {section["Total seats"] - section["Seats taken"]}
+                          </MenuItem>
+                        );
+                      }
+                    })}
+                  </Select>
+                </FormControl>
+              )}
+
+              <Button
+                type="button"
+                fullWidth
+                variant="contained"
+                color="primary"
+                onClick={handleOnAddEvent}
+                className={classes.addcourse}
+              >
+                Add course to schedule
+              </Button>
             </div>
           </div>
-        </div>
-        
 
-        <FullCalendar
-          defaultView="timeGridWeek"
-          allDaySlot={false}
-          plugins={[
-            dayGridPlugin,
-            timeGridPlugin,
-            interactionPlugin,
-            bootstrapPlugin,
-          ]}
-          eventClick={handleEventClick}
-          themeSystem="bootstrap"
-          minTime={"06:00:00"}
-          header={{
-            left: "prev,next today",
-            center: "title",
-            right: "dayGridMonth,timeGridWeek,timeGridDay,listWeek",
-          }}
-          events={events}
-        />
-        
-        <Dialog
-          open={open2}
-          onClose={handleClose2}
-          aria-labelledby="form-dialog-title"
-          fullscreen
-          maxWidth="lg"
-        >
-          <DialogTitle id="form-dialog-title">Course Details</DialogTitle>
-          <DialogContent>
-            <Box display="flex" p={0.5}>
-              <Box mr={15}>
-                <Box fontWeight="fontWeightBold" display="inline">Title: </Box> {section["Title"]} <br></br>
-                <Box fontWeight="fontWeightBold" display="inline">Course Code: </Box> {section["Code"]} <br></br>
-                <Box fontWeight="fontWeightBold" display="inline">Section: </Box> {section["Section"]} <br></br>
-                <Box fontWeight="fontWeightBold" display="inline">Department: </Box> {section["Department"]} <br></br>
-                <Box fontWeight="fontWeightBold" display="inline">Seats Available: </Box> {section["Total seats"] - section["Seats taken"]} <br></br>
-                <Box fontWeight="fontWeightBold" display="inline">Type: </Box> {section["Type"]} <br></br>
-                <Box fontWeight="fontWeightBold" display="inline">Instructor: </Box> {section["Instructor Fname"]}. {section["Instructor Lname"]} <br></br>
-                <Box fontWeight="fontWeightBold" display="inline">Institution: </Box> {section["Institution"]} <br></br>
-                <Box fontWeight="fontWeightBold" display="inline">Credits: </Box> {section["Units"]} <br></br>
-              </Box>
-              <Box p={0.5}>
-                <Box fontWeight="fontWeightBold">Days, Time, Location: </Box> {section["Days"]} 
-                {convertFrom24To12Format(section["Start Time"])} - {convertFrom24To12Format(section["End Time"])} - {section["Location"]} <br></br>
-                <Box display="inline">Dates: </Box> {section["Start Date"]} - {section["End Date"]} <br></br>
-                <Box ml={-0.5}>
-                <Button size="small" color="primary" onClick={handleOpenRMP}>
-                  View RateMyProfessor Info
-                </Button><br></br>
-                <Button size="small" color="primary" onClick={handleOpenRequisites}>
-                  View Pre/Co-requisite Info
-              </Button>
+          <FullCalendar
+            defaultView="timeGridWeek"
+            allDaySlot={false}
+            plugins={[
+              dayGridPlugin,
+              timeGridPlugin,
+              interactionPlugin,
+              bootstrapPlugin,
+            ]}
+            eventClick={handleEventClick}
+            themeSystem="bootstrap"
+            minTime={"06:00:00"}
+            header={{
+              left: "prev,next today",
+              center: "title",
+              right: "dayGridMonth,timeGridWeek,timeGridDay,listWeek",
+            }}
+            events={events}
+          />
+
+          <Dialog
+            open={open2}
+            onClose={handleClose2}
+            aria-labelledby="form-dialog-title"
+            fullscreen
+            maxWidth="lg"
+          >
+            <DialogTitle id="form-dialog-title">Course Details</DialogTitle>
+            <DialogContent>
+              <Box display="flex" p={0.5}>
+                <Box mr={15}>
+                  <Box fontWeight="fontWeightBold" display="inline">
+                    Title:{" "}
+                  </Box>{" "}
+                  {section["Title"]} <br></br>
+                  <Box fontWeight="fontWeightBold" display="inline">
+                    Course Code:{" "}
+                  </Box>{" "}
+                  {section["Code"]} <br></br>
+                  <Box fontWeight="fontWeightBold" display="inline">
+                    Section:{" "}
+                  </Box>{" "}
+                  {section["Section"]} <br></br>
+                  <Box fontWeight="fontWeightBold" display="inline">
+                    Department:{" "}
+                  </Box>{" "}
+                  {section["Department"]} <br></br>
+                  <Box fontWeight="fontWeightBold" display="inline">
+                    Seats Available:{" "}
+                  </Box>{" "}
+                  {section["Total seats"] - section["Seats taken"]} <br></br>
+                  <Box fontWeight="fontWeightBold" display="inline">
+                    Type:{" "}
+                  </Box>{" "}
+                  {section["Type"]} <br></br>
+                  <Box fontWeight="fontWeightBold" display="inline">
+                    Instructor:{" "}
+                  </Box>{" "}
+                  {section["Instructor Fname"]}. {section["Instructor Lname"]}{" "}
+                  <br></br>
+                  <Box fontWeight="fontWeightBold" display="inline">
+                    Institution:{" "}
+                  </Box>{" "}
+                  {section["Institution"]} <br></br>
+                  <Box fontWeight="fontWeightBold" display="inline">
+                    Credits:{" "}
+                  </Box>{" "}
+                  {section["Units"]} <br></br>
+                </Box>
+                <Box p={0.5}>
+                  <Box fontWeight="fontWeightBold">Days, Time, Location: </Box>{" "}
+                  {section["Days"]}
+                  {convertFrom24To12Format(section["Start Time"])} -{" "}
+                  {convertFrom24To12Format(section["End Time"])} -{" "}
+                  {section["Location"]} <br></br>
+                  <Box display="inline">Dates: </Box> {section["Start Date"]} -{" "}
+                  {section["End Date"]} <br></br>
+                  <Box ml={-0.5}>
+                    <Button
+                      size="small"
+                      color="primary"
+                      onClick={handleOpenRMP}
+                    >
+                      View RateMyProfessor Info
+                    </Button>
+                    <br></br>
+                    <Button
+                      size="small"
+                      color="primary"
+                      onClick={handleOpenRequisites}
+                    >
+                      View Pre/Co-requisite Info
+                    </Button>
+                  </Box>
                 </Box>
               </Box>
-            </Box>
-          </DialogContent>
-          <DialogActions>
-          <Button size="small" color="primary" onClick={handleOpen}>
-            Taken this course? Fill out a quick survey for us!
-          </Button>
-          <Button size="small" onClick={handleClose2} color="primary">
-            Close
-          </Button>
-        </DialogActions>
-        </Dialog>
-
-        <Dialog
-          open={open}
-          onClose={handleClose}
-          aria-labelledby="form-dialog-title"
-        >
-          <DialogTitle id="form-dialog-title">Course Survey</DialogTitle>
-          <DialogContent>
-            <DialogContentText>
-              Did this course require addition textbook/material costs?
-            </DialogContentText>
-            <ButtonGroup>
-              <Button
-                classname={classes.button}
-                value="true"
-                variant={yesSelected}
-                color="primary"
-                onClick={handleButton}
-              >
-                Yes
+            </DialogContent>
+            <DialogActions>
+              <Button size="small" color="primary" onClick={handleOpen}>
+                Taken this course? Fill out a quick survey for us!
               </Button>
-              <Button
-                classname={classes.button}
-                value="false"
-                variant={noSelected}
-                color="primary"
-                onClick={handleButton2}
-              >
-                No
+              <Button size="small" onClick={handleClose2} color="primary">
+                Close
               </Button>
-            </ButtonGroup>
-            <DialogContentText>
-              Provide an estimated cost of materials below:
-            </DialogContentText>
-            <CurrencyTextField
-              label="Amount"
-              variant="standard"
-              value={currency}
-              currencySymbol="$"
-              outputFormat="number"
-              disabled={amtDisabled}
-              onChange={(e, currency) => {setCurrency(currency); setsubmit_bool(false);}}
-              defaultValue="0.00"
-              fullWidth
-            />
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={handleClose} color="primary">
-              Cancel
-            </Button>
-            <Button
-              onClick={handleSubmit}
-              color="primary"
-              disabled={submit_bool}
-              value={currency}
-            >
-              Submit
-            </Button>
-          </DialogActions>
-        </Dialog>
+            </DialogActions>
+          </Dialog>
 
-
-        <Dialog
-          open={open3}
-          onClose={handleClose3}
-          aria-labelledby="form-dialog-title"
-          maxWidth="md"
-        >
-        <DialogTitle id="form-dialog-title" className={classes.content}>Create Calendar Event</DialogTitle>
-          <DialogContent>
-            <form className={classes.container} noValidate>
-              <TextField 
-                id="standard-basic" 
-                label="Enter the title of the event" 
-                fullWidth="true" 
-                helperText="Maximum Character Length: 20"
-              />
-              <Box flexDirection="column" mt={2}>
-                Is this event recurring?
-              <br></br>
-              </Box>
-              <Box flexDirection="column" mt={2}>
+          <Dialog
+            open={open}
+            onClose={handleClose}
+            aria-labelledby="form-dialog-title"
+          >
+            <DialogTitle id="form-dialog-title">Course Survey</DialogTitle>
+            <DialogContent>
+              <DialogContentText>
+                Did this course require addition textbook/material costs?
+              </DialogContentText>
               <ButtonGroup>
                 <Button
                   classname={classes.button}
                   value="true"
                   variant={yesSelected}
                   color="primary"
-                  onClick={handleButton3}
+                  onClick={handleButton}
                 >
                   Yes
                 </Button>
@@ -744,46 +787,177 @@ export default (props) => {
                   value="false"
                   variant={noSelected}
                   color="primary"
-                  onClick={handleButton4}
+                  onClick={handleButton2}
                 >
                   No
                 </Button>
               </ButtonGroup>
-              </Box>
-              <br></br>
+              <DialogContentText>
+                Provide an estimated cost of materials below:
+              </DialogContentText>
+              <CurrencyTextField
+                label="Amount"
+                variant="standard"
+                value={currency}
+                currencySymbol="$"
+                outputFormat="number"
+                disabled={amtDisabled}
+                onChange={(e, currency) => {
+                  setCurrency(currency);
+                  setsubmit_bool(false);
+                }}
+                defaultValue="0.00"
+                fullWidth
+              />
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={handleClose} color="primary">
+                Cancel
+              </Button>
+              <Button
+                onClick={handleSubmit}
+                color="primary"
+                disabled={submit_bool}
+                value={currency}
+              >
+                Submit
+              </Button>
+            </DialogActions>
+          </Dialog>
 
-              <FormGroup aria-label="position" row>
-                <FormControlLabel
-                  control={<Checkbox checked={Monday} name="Monday" onChange={handleChecked} disabled={!IsRecurring} />}
-                  label="Monday" labelPlacement="top"
+          <Dialog
+            open={open3}
+            onClose={handleClose3}
+            aria-labelledby="form-dialog-title"
+            maxWidth="md"
+          >
+            <DialogTitle id="form-dialog-title" className={classes.content}>
+              Create Calendar Event
+            </DialogTitle>
+            <DialogContent>
+              <form className={classes.container} noValidate>
+                <TextField
+                  id="standard-basic"
+                  label="Enter the title of the event"
+                  fullWidth="true"
+                  helperText="Maximum Character Length: 20"
                 />
-                <FormControlLabel
-                  control={<Checkbox checked={Tuesday} name="Tuesday" onChange={handleChecked} disabled={!IsRecurring} />}
-                  label="Tuesday" labelPlacement="top"
-                />
-                <FormControlLabel
-                  control={<Checkbox checked={Wednesday} name="Wednesday" onChange={handleChecked} disabled={!IsRecurring} />}
-                  label="Wednesday" labelPlacement="top"
-                />
-                <FormControlLabel
-                  control={<Checkbox checked={Thursday} name="Thursday" onChange={handleChecked} disabled={!IsRecurring} />}
-                  label="Thursday" labelPlacement="top"
-                />
-                <FormControlLabel
-                  control={<Checkbox checked={Friday} name="Friday" onChange={handleChecked} disabled={!IsRecurring} />}
-                  label="Friday" labelPlacement="top"
-                />
-                <FormControlLabel
-                  control={<Checkbox checked={Saturday} name="Saturday" onChange={handleChecked} disabled={!IsRecurring} />}
-                  label="Saturday" labelPlacement="top"
-                />
-                <FormControlLabel
-                control={<Checkbox checked={Sunday} name="Sunday" onChange={handleChecked} disabled={!IsRecurring} />}
-                label="Sunday" labelPlacement="top"
-                />
-              </FormGroup>
+                <Box flexDirection="column" mt={2}>
+                  Is this event recurring?
+                  <br></br>
+                </Box>
+                <Box flexDirection="column" mt={2}>
+                  <ButtonGroup>
+                    <Button
+                      classname={classes.button}
+                      value="true"
+                      variant={yesSelected}
+                      color="primary"
+                      onClick={handleButton3}
+                    >
+                      Yes
+                    </Button>
+                    <Button
+                      classname={classes.button}
+                      value="false"
+                      variant={noSelected}
+                      color="primary"
+                      onClick={handleButton4}
+                    >
+                      No
+                    </Button>
+                  </ButtonGroup>
+                </Box>
+                <br></br>
 
-              <MuiPickersUtilsProvider utils={DateFnsUtils}>
+                <FormGroup aria-label="position" row>
+                  <FormControlLabel
+                    control={
+                      <Checkbox
+                        checked={Monday}
+                        name="Monday"
+                        onChange={handleChecked}
+                        disabled={!IsRecurring}
+                      />
+                    }
+                    label="Monday"
+                    labelPlacement="top"
+                  />
+                  <FormControlLabel
+                    control={
+                      <Checkbox
+                        checked={Tuesday}
+                        name="Tuesday"
+                        onChange={handleChecked}
+                        disabled={!IsRecurring}
+                      />
+                    }
+                    label="Tuesday"
+                    labelPlacement="top"
+                  />
+                  <FormControlLabel
+                    control={
+                      <Checkbox
+                        checked={Wednesday}
+                        name="Wednesday"
+                        onChange={handleChecked}
+                        disabled={!IsRecurring}
+                      />
+                    }
+                    label="Wednesday"
+                    labelPlacement="top"
+                  />
+                  <FormControlLabel
+                    control={
+                      <Checkbox
+                        checked={Thursday}
+                        name="Thursday"
+                        onChange={handleChecked}
+                        disabled={!IsRecurring}
+                      />
+                    }
+                    label="Thursday"
+                    labelPlacement="top"
+                  />
+                  <FormControlLabel
+                    control={
+                      <Checkbox
+                        checked={Friday}
+                        name="Friday"
+                        onChange={handleChecked}
+                        disabled={!IsRecurring}
+                      />
+                    }
+                    label="Friday"
+                    labelPlacement="top"
+                  />
+                  <FormControlLabel
+                    control={
+                      <Checkbox
+                        checked={Saturday}
+                        name="Saturday"
+                        onChange={handleChecked}
+                        disabled={!IsRecurring}
+                      />
+                    }
+                    label="Saturday"
+                    labelPlacement="top"
+                  />
+                  <FormControlLabel
+                    control={
+                      <Checkbox
+                        checked={Sunday}
+                        name="Sunday"
+                        onChange={handleChecked}
+                        disabled={!IsRecurring}
+                      />
+                    }
+                    label="Sunday"
+                    labelPlacement="top"
+                  />
+                </FormGroup>
+
+                <MuiPickersUtilsProvider utils={DateFnsUtils}>
                   <KeyboardDatePicker
                     margin="normal"
                     id="date-picker-dialog"
@@ -793,7 +967,7 @@ export default (props) => {
                     disabled={IsRecurring}
                     onChange={handleDateChange}
                     KeyboardButtonProps={{
-                      'aria-label': 'change date',
+                      "aria-label": "change date",
                     }}
                   />
                   <br></br>
@@ -805,7 +979,7 @@ export default (props) => {
                     value={selectedSDate}
                     onChange={handleDateChange}
                     KeyboardButtonProps={{
-                      'aria-label': 'change time',
+                      "aria-label": "change time",
                     }}
                   />
                   <br></br>
@@ -817,123 +991,152 @@ export default (props) => {
                     value={selectedEDate}
                     onChange={handleDateChange2}
                     KeyboardButtonProps={{
-                      'aria-label': 'change time',
+                      "aria-label": "change time",
                     }}
                   />
-              </MuiPickersUtilsProvider>
-            </form>
-
-
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={handleClose3} color="primary">
-              Cancel
-            </Button>
-            <Button
-              onClick={handleSubmit2}
-              color="primary"
-              //disabled={submit_bool}
-              //value={currency}
-            >
-              Submit
-            </Button>
-        </DialogActions>
-        </Dialog>
-
-        <Dialog
-          open={openRMP}
-          onClose={handleCloseRMP}
-          aria-labelledby="form-dialog-title"
-        >
-          <DialogTitle id="form-dialog-title">RateMyProfessor Data</DialogTitle>
-          <DialogContent>
-            <DialogContentText>
-              Select the correct professor from the list below:
-            </DialogContentText>
-
-            <FormControl
-              fullWidth
-              className={classes.formControl}
-              disabled={professors.length <= 0}
-            >
-              <InputLabel id="label">Select Professor</InputLabel>
-              <Select
-                labelId="label"
-                id="select"
-                value={selectedRMPProfessor}
-                onChange={(event) => {
-                  setSelectedRMPProfessor(event.target.value);
-                  setsubmit_bool_rmp(false);
-                }}
+                </MuiPickersUtilsProvider>
+              </form>
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={handleClose3} color="primary">
+                Cancel
+              </Button>
+              <Button
+                onClick={handleSubmit2}
+                color="primary"
+                //disabled={submit_bool}
+                //value={currency}
               >
-                {professors?.map((professor) => (
-                  <MenuItem value={professor.id} key={professor.id}>
-                    {professor["First Name"]} {professor["Last Name"]}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          </DialogContent>
+                Submit
+              </Button>
+            </DialogActions>
+          </Dialog>
 
-          <DialogActions>
-            <Button onClick={handleRMPClose} color="primary">
-              Cancel
-            </Button>
-            <Button
-              onClick={handleRMPSubmit}
-              color="primary"
-              disabled={submit_bool_rmp}
-            >
-              Submit
-            </Button>
-          </DialogActions>
-        </Dialog>
+          <Dialog
+            open={openRMP}
+            onClose={handleCloseRMP}
+            aria-labelledby="form-dialog-title"
+          >
+            <DialogTitle id="form-dialog-title">
+              RateMyProfessor Data
+            </DialogTitle>
+            <DialogContent>
+              <DialogContentText>
+                Select the correct professor from the list below:
+              </DialogContentText>
 
-        <Dialog
-        open={openRMPData}
-        onClose={handleCloseRMPData}
-        aria-labelledby="form-dialog-title"
-      >
-        <DialogTitle id="form-dialog-title">RateMyProfessor Data for {RMPProf["First Name"]} {RMPProf["Last Name"]}</DialogTitle>
-        <DialogContent>
-          <Box display="flex" p={0.5}>
-          <Box mr={15}>
-            <Box fontWeight="fontWeightBold" display="inline">Department: </Box> {RMPProf["Department"]} <br></br>
-            <Box fontWeight="fontWeightBold" display="inline">Institution: </Box> {RMPProf["Institution"]} <br></br>
-            <Box fontWeight="fontWeightBold" display="inline">Average Rating: </Box> {RMPProf["Average Rating"]} / 5 <br></br>
-            <Box fontWeight="fontWeightBold" display="inline">Level of Difficulty: </Box> {RMPProf["Level of Difficulty"]} / 5 <br></br>
-            <Box fontWeight="fontWeightBold" display="inline">Would take again: </Box> {RMPProf["Would take again"]} <br></br>
-            <Box fontWeight="fontWeightBold" display="inline">Based on: </Box> {RMPProf["Number of Ratings"]} Ratings<br></br>
-            <Box fontWeight="fontWeightBold" display="inline">Most Helpful Rating: </Box> {RMPProf["Most Helpful Rating"]} <br></br>
-          </Box>
-          </Box>
-        </DialogContent>
+              <FormControl
+                fullWidth
+                className={classes.formControl}
+                disabled={professors.length <= 0}
+              >
+                <InputLabel id="label">Select Professor</InputLabel>
+                <Select
+                  labelId="label"
+                  id="select"
+                  value={selectedRMPProfessor}
+                  onChange={(event) => {
+                    setSelectedRMPProfessor(event.target.value);
+                    setsubmit_bool_rmp(false);
+                  }}
+                >
+                  {professors?.map((professor) => (
+                    <MenuItem value={professor.id} key={professor.id}>
+                      {professor["First Name"]} {professor["Last Name"]}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </DialogContent>
 
-        <DialogActions>
-        </DialogActions>
-      </Dialog>
+            <DialogActions>
+              <Button onClick={handleRMPClose} color="primary">
+                Cancel
+              </Button>
+              <Button
+                onClick={handleRMPSubmit}
+                color="primary"
+                disabled={submit_bool_rmp}
+              >
+                Submit
+              </Button>
+            </DialogActions>
+          </Dialog>
 
-      <Dialog
-      open={openRequisites}
-      onClose={handleCloseRequisities}
-      aria-labelledby="form-dialog-title"
-    >
-      <DialogTitle id="form-dialog-title">{section["Course"]} Prequisites and Corequisites</DialogTitle>
-      <DialogContent>
-        <Box display="flex" p={0.5}>
-        <Box>
-          <Box fontWeight="fontWeightBold" display="inline">Prerequisites: </Box> {getPrereqs(course)} <br></br>
-          <Box fontWeight="fontWeightBold" display="inline">Corequisites: </Box> {getCoreqs(course)} <br></br>
-        </Box>
-        </Box>
-      </DialogContent>
+          <Dialog
+            open={openRMPData}
+            onClose={handleCloseRMPData}
+            aria-labelledby="form-dialog-title"
+          >
+            <DialogTitle id="form-dialog-title">
+              RateMyProfessor Data for {RMPProf["First Name"]}{" "}
+              {RMPProf["Last Name"]}
+            </DialogTitle>
+            <DialogContent>
+              <Box display="flex" p={0.5}>
+                <Box mr={15}>
+                  <Box fontWeight="fontWeightBold" display="inline">
+                    Department:{" "}
+                  </Box>{" "}
+                  {RMPProf["Department"]} <br></br>
+                  <Box fontWeight="fontWeightBold" display="inline">
+                    Institution:{" "}
+                  </Box>{" "}
+                  {RMPProf["Institution"]} <br></br>
+                  <Box fontWeight="fontWeightBold" display="inline">
+                    Average Rating:{" "}
+                  </Box>{" "}
+                  {RMPProf["Average Rating"]} / 5 <br></br>
+                  <Box fontWeight="fontWeightBold" display="inline">
+                    Level of Difficulty:{" "}
+                  </Box>{" "}
+                  {RMPProf["Level of Difficulty"]} / 5 <br></br>
+                  <Box fontWeight="fontWeightBold" display="inline">
+                    Would take again:{" "}
+                  </Box>{" "}
+                  {RMPProf["Would take again"]} <br></br>
+                  <Box fontWeight="fontWeightBold" display="inline">
+                    Based on:{" "}
+                  </Box>{" "}
+                  {RMPProf["Number of Ratings"]} Ratings<br></br>
+                  <Box fontWeight="fontWeightBold" display="inline">
+                    Most Helpful Rating:{" "}
+                  </Box>{" "}
+                  {RMPProf["Most Helpful Rating"]} <br></br>
+                </Box>
+              </Box>
+            </DialogContent>
 
-      <DialogActions>
-      </DialogActions>
-    </Dialog>
+            <DialogActions></DialogActions>
+          </Dialog>
 
-      </Paper>
-    </Container>
+          <Dialog
+            open={openRequisites}
+            onClose={handleCloseRequisities}
+            aria-labelledby="form-dialog-title"
+          >
+            <DialogTitle id="form-dialog-title">
+              {section["Course"]} Prequisites and Corequisites
+            </DialogTitle>
+            <DialogContent>
+              <Box display="flex" p={0.5}>
+                <Box>
+                  <Box fontWeight="fontWeightBold" display="inline">
+                    Prerequisites:{" "}
+                  </Box>{" "}
+                  {getPrereqs(course)} <br></br>
+                  <Box fontWeight="fontWeightBold" display="inline">
+                    Corequisites:{" "}
+                  </Box>{" "}
+                  {getCoreqs(course)} <br></br>
+                </Box>
+              </Box>
+            </DialogContent>
+
+            <DialogActions></DialogActions>
+          </Dialog>
+        </Paper>
+      </Container>
     </div>
   );
 };

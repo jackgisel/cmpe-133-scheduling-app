@@ -10,7 +10,7 @@ import {
   FETCH_SECTION_FAILURE,
   FETCH_PROFESSOR_REQUEST,
   FETCH_PROFESSOR_SUCCESS,
-  FETCH_PROFESSOR_FAILURE
+  FETCH_PROFESSOR_FAILURE,
 } from "../actions";
 
 export default (
@@ -72,7 +72,7 @@ export default (
     case FETCH_PROFESSOR_SUCCESS:
       return {
         ...state,
-        professors: action.professors,
+        professors: [...state.professors, action.professors],
         isFetching: false,
         error: undefined,
       };

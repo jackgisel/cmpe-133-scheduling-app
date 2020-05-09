@@ -16,6 +16,8 @@ export const FETCH_PROFESSOR_REQUEST = "FETCH_PROFESSOR_REQUEST";
 export const FETCH_PROFESSOR_SUCCESS = "FETCH_PROFESSOR_SUCCESS";
 export const FETCH_PROFESSOR_FAILURE = "FETCH_PROFESSOR_FAILURE";
 
+export const FETCHED_PROFESSOR = "FETCHED_PROFESSOR";
+
 const fetchDepartments = () => {
   return {
     type: FETCH_DEPARTMENT_REQUEST,
@@ -164,14 +166,14 @@ export const searchbyID = (sectionId) => async (dispatch) => {
     .collection("SJSU - Sections")
     .doc(sectionId)
     .get()
-    .then(doc => {
-        let sections = [];
-        sections.push({
-          id: doc.id,
-          ...doc.data(),
-        })
-        dispatch(fetchSectionsSuccess(sections));
-        //return Promise.resolve();
+    .then((doc) => {
+      let sections = [];
+      sections.push({
+        id: doc.id,
+        ...doc.data(),
+      });
+      dispatch(fetchSectionsSuccess(sections));
+      //return Promise.resolve();
     })
     .catch((err) => {
       dispatch(fetchSectionsError(err));
