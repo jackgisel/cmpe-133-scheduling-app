@@ -1,13 +1,21 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Route, Switch } from "react-router-dom";
-import { connect } from "react-redux";
+import { connect, useDispatch } from "react-redux";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Home from "./screens/Home";
 import Login from "./components/Login";
 import Signup from "./components/Signup";
 
+import { fetchUser } from "./actions/";
+
 function App(props) {
   const { isAuthenticated, isVerifying } = props;
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    if (isAuthenticated) dispatch(fetchUser());
+  }, [isAuthenticated]);
+
   return (
     <Switch>
       <ProtectedRoute

@@ -1,4 +1,5 @@
 import { myFirebase, db } from "../firebase/firebase";
+import firebase from "firebase/app";
 
 export const LOGIN_REQUEST = "LOGIN_REQUEST";
 export const LOGIN_SUCCESS = "LOGIN_SUCCESS";
@@ -13,15 +14,24 @@ export const LOGOUT_FAILURE = "LOGOUT_FAILURE";
 export const VERIFY_REQUEST = "VERIFY_REQUEST";
 export const VERIFY_SUCCESS = "VERIFY_SUCCESS";
 
+export const FOUND_USER = "FOUND_USER";
+export const ADDED_EVENT = "ADDED_EVENT";
+
 const requestLogin = () => {
   return {
     type: LOGIN_REQUEST,
   };
 };
 
-const receiveLogin = (user) => {
+const receiveLogin = () => {
   return {
     type: LOGIN_SUCCESS,
+  };
+};
+
+const foundUser = (user) => {
+  return {
+    type: FOUND_USER,
     user,
   };
 };
@@ -68,6 +78,13 @@ const verifySuccess = () => {
   };
 };
 
+const addedEvent = (event) => {
+  return {
+    type: ADDED_EVENT,
+    event,
+  };
+};
+
 export const signupUser = (email, password) => (dispatch) => {
   myFirebase
     .auth()
@@ -97,13 +114,35 @@ export const signupUser = (email, password) => (dispatch) => {
     });
 };
 
+export const fetchUser = () => async (dispatch) => {
+  const email = myFirebase.auth().currentUser.email;
+  await db
+    .collection("users")
+    .where("email", "==", email)
+    .get()
+    .then(function (querySnapshot) {
+      querySnapshot.forEach(function (doc) {
+        dispatch(
+          foundUser({
+            id: doc.id,
+            ...doc.data(),
+          })
+        );
+      });
+    })
+    .catch(function (error) {
+      console.log("Error getting documents: ", error);
+    });
+};
+
 export const loginUser = (email, password) => (dispatch) => {
   dispatch(requestLogin());
   myFirebase
     .auth()
     .signInWithEmailAndPassword(email, password)
     .then((user) => {
-      dispatch(receiveLogin(user));
+      dispatch(receiveLogin());
+      dispatch(fetchUser());
     })
     .catch((error) => {
       //Do something with the error if you want!
@@ -133,4 +172,22 @@ export const verifyAuth = () => (dispatch) => {
     }
     dispatch(verifySuccess());
   });
+};
+
+export const addEvent = (event) => async (dispatch) => {
+  const email = myFirebase.auth().currentUser.email;
+  db.collection("users")
+    .where("email", "==", email)
+    .get()
+    .then(function (querySnapshot) {
+      querySnapshot.forEach(function (doc) {
+        db.collection("users")
+          .doc(doc.id)
+          .update({ events: firebase.firestore.FieldValue.arrayUnion(event) })
+          .then(() => dispatch(addedEvent(event)));
+      });
+    })
+    .catch(function (error) {
+      console.log("Error getting documents: ", error);
+    });
 };

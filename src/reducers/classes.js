@@ -8,6 +8,7 @@ import {
   FETCH_SECTION_REQUEST,
   FETCH_SECTION_SUCCESS,
   FETCH_SECTION_FAILURE,
+  FETCHED_PROFESSOR,
 } from "../actions";
 
 export default (
@@ -65,6 +66,11 @@ export default (
         ...state,
         isFetching: false,
         error: action.error,
+      };
+    case FETCHED_PROFESSOR:
+      return {
+        ...state,
+        professors: [...state.professors, action.professors],
       };
     default:
       return state;

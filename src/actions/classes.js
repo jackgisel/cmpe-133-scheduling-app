@@ -12,6 +12,8 @@ export const FETCH_SECTION_REQUEST = "FETCH_SECTION_REQUEST";
 export const FETCH_SECTION_SUCCESS = "FETCH_SECTION_SUCCESS";
 export const FETCH_SECTION_FAILURE = "FETCH_SECTION_FAILURE";
 
+export const FETCHED_PROFESSOR = "FETCHED_PROFESSOR";
+
 const fetchDepartments = () => {
   return {
     type: FETCH_DEPARTMENT_REQUEST,
@@ -69,6 +71,13 @@ const fetchSectionsError = (error) => {
   return {
     type: FETCH_SECTION_FAILURE,
     error,
+  };
+};
+
+const fetchedProfessor = (professors) => {
+  return {
+    type: FETCHED_PROFESSOR,
+    professors,
   };
 };
 
@@ -131,5 +140,25 @@ export const getSections = (courseId) => async (dispatch) => {
     })
     .catch((err) => {
       dispatch(fetchSectionsError(err));
+    });
+};
+
+export const fetchProfessor = (professorName) => async (dispatch) => {
+  await db
+    .collection("SJSU - Professors")
+    .where("Last Name", "==", professorName)
+    .get()
+    .then(function (querySnapshot) {
+      let professors = [];
+      querySnapshot.forEach((doc) =>
+        professors.push({
+          id: doc.id,
+          ...doc.data(),
+        })
+      );
+      dispatch(fetchedProfessor(professors));
+    })
+    .catch((err) => {
+      console.log(err);
     });
 };
