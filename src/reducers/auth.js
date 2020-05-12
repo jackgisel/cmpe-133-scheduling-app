@@ -9,6 +9,8 @@ import {
   VERIFY_SUCCESS,
   FOUND_USER,
   ADDED_EVENT,
+  SET_ERRORS,
+  BEGIN_REMOVE_EVENT,
 } from "../actions/";
 
 export default (
@@ -19,6 +21,7 @@ export default (
     loginError: false,
     logoutError: false,
     isAuthenticated: false,
+    errors: false,
     user: {
       email: "",
       events: [],
@@ -47,6 +50,12 @@ export default (
           ...action.user,
         },
       };
+    case SET_ERRORS: {
+      return {
+        ...state,
+        errors: action.errors,
+      };
+    }
     case LOGIN_FAILURE:
       return {
         ...state,
@@ -73,6 +82,13 @@ export default (
         isLoggingOut: false,
         logoutError: true,
       };
+    case BEGIN_REMOVE_EVENT:
+      return {
+        ...state,
+        user: {
+          events: state.user.events.filter((e) => e.Code !== action.courseCode),
+        },
+      };
     case VERIFY_REQUEST:
       return {
         ...state,
@@ -89,7 +105,7 @@ export default (
         ...state,
         user: {
           ...state.user,
-          events: [...state.user.events, action.event],
+          events: [...state.user?.events, action.event],
         },
       };
     }

@@ -3,6 +3,10 @@ import { Route, Switch } from "react-router-dom";
 import { connect, useDispatch } from "react-redux";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Home from "./screens/Home";
+import MyCalendar from "./screens/MyCalendar";
+import MyCourses from "./screens/MyCourses";
+import MyEvents from "./screens/MyEvents";
+import MyFriends from "./screens/MyFriends";
 import Login from "./components/Login";
 import Signup from "./components/Signup";
 
@@ -14,7 +18,7 @@ function App(props) {
 
   useEffect(() => {
     if (isAuthenticated) dispatch(fetchUser());
-  }, [isAuthenticated]);
+  }, [isAuthenticated, dispatch]);
 
   return (
     <Switch>
@@ -22,6 +26,34 @@ function App(props) {
         exact
         path="/"
         component={Home}
+        isAuthenticated={isAuthenticated}
+        isVerifying={isVerifying}
+      />
+      <ProtectedRoute
+        exact
+        path="/my-calendar"
+        component={MyCalendar}
+        isAuthenticated={isAuthenticated}
+        isVerifying={isVerifying}
+      />
+      <ProtectedRoute
+        exact
+        path="/my-courses"
+        component={MyCourses}
+        isAuthenticated={isAuthenticated}
+        isVerifying={isVerifying}
+      />
+      <ProtectedRoute
+        exact
+        path="/my-events"
+        component={MyEvents}
+        isAuthenticated={isAuthenticated}
+        isVerifying={isVerifying}
+      />
+      <ProtectedRoute
+        exact
+        path="/my-friends"
+        component={MyFriends}
         isAuthenticated={isAuthenticated}
         isVerifying={isVerifying}
       />

@@ -1,5 +1,6 @@
 import { myFirebase, db } from "../firebase/firebase";
 import firebase from "firebase/app";
+import randomHexColor from "random-hex-color";
 
 export const LOGIN_REQUEST = "LOGIN_REQUEST";
 export const LOGIN_SUCCESS = "LOGIN_SUCCESS";
@@ -16,6 +17,9 @@ export const VERIFY_SUCCESS = "VERIFY_SUCCESS";
 
 export const FOUND_USER = "FOUND_USER";
 export const ADDED_EVENT = "ADDED_EVENT";
+
+export const SET_ERRORS = "SET_ERRORS";
+export const BEGIN_REMOVE_EVENT = "BEGIN_REMOVE_EVENT";
 
 const requestLogin = () => {
   return {
@@ -82,6 +86,20 @@ const addedEvent = (event) => {
   return {
     type: ADDED_EVENT,
     event,
+  };
+};
+
+const beginRemoveEvent = (courseCode) => {
+  return {
+    type: BEGIN_REMOVE_EVENT,
+    courseCode,
+  };
+};
+
+export const setErrors = (errors) => {
+  return {
+    type: SET_ERRORS,
+    errors,
   };
 };
 
@@ -174,8 +192,34 @@ export const verifyAuth = () => (dispatch) => {
   });
 };
 
-export const addEvent = (event) => async (dispatch) => {
+function prepareEvent(section) {
+  let startString = section["Start Time"].toString().split("");
+  let start =
+    startString.length === 3
+      ? "0" + startString[0] + ":" + startString[1] + startString[2]
+      : startString[0] + startString[1] + ":" + startString[2] + startString[3];
+
+  let endString = section["End Time"].toString().split("");
+  let end =
+    endString.length === 3
+      ? "0" + endString[0] + ":" + endString[1] + endString[2]
+      : endString[0] + endString[1] + ":" + endString[2] + endString[3];
+
+  return {
+    ...section,
+    title: `${section.Course} - ${section.Section}`,
+    daysOfWeek: JSON.parse(section["Daysofweek"]),
+    startTime: start,
+    endTime: end,
+    backgroundColor: randomHexColor(),
+  };
+}
+
+export const addEvent = (section) => async (dispatch) => {
   const email = myFirebase.auth().currentUser.email;
+
+  let event = section.isManual ? section : prepareEvent(section);
+
   db.collection("users")
     .where("email", "==", email)
     .get()
@@ -185,6 +229,28 @@ export const addEvent = (event) => async (dispatch) => {
           .doc(doc.id)
           .update({ events: firebase.firestore.FieldValue.arrayUnion(event) })
           .then(() => dispatch(addedEvent(event)));
+      });
+    })
+    .catch(function (error) {
+      console.log("Error getting documents: ", error);
+    });
+};
+
+export const removeEvent = (courseCode) => async (dispatch) => {
+  const email = myFirebase.auth().currentUser.email;
+  dispatch(beginRemoveEvent(courseCode));
+  db.collection("users")
+    .where("email", "==", email)
+    .get()
+    .then(function (querySnapshot) {
+      querySnapshot.forEach(function (doc) {
+        db.collection("users")
+          .doc(doc.id)
+          .update({
+            events: doc
+              .data()
+              .events.filter((event) => event.Code !== courseCode),
+          });
       });
     })
     .catch(function (error) {

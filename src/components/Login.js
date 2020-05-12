@@ -1,48 +1,48 @@
-import React, { Component } from 'react';
-import { connect } from 'react-redux';
-import { Redirect } from 'react-router-dom';
-import { loginUser } from '../actions';
-import { withStyles } from '@material-ui/styles';
+import React, { Component } from "react";
+import { connect } from "react-redux";
+import { Redirect } from "react-router-dom";
+import { loginUser } from "../actions";
+import { withStyles } from "@material-ui/styles";
 
-import Avatar from '@material-ui/core/Avatar';
-import Button from '@material-ui/core/Button';
-import Link from '@material-ui/core/Link';
-import TextField from '@material-ui/core/TextField';
-import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
-import Typography from '@material-ui/core/Typography';
-import Paper from '@material-ui/core/Paper';
-import Container from '@material-ui/core/Container';
+import Avatar from "@material-ui/core/Avatar";
+import Button from "@material-ui/core/Button";
+import Link from "@material-ui/core/Link";
+import TextField from "@material-ui/core/TextField";
+import LockOutlinedIcon from "@material-ui/icons/LockOutlined";
+import Typography from "@material-ui/core/Typography";
+import Paper from "@material-ui/core/Paper";
+import Container from "@material-ui/core/Container";
 
 const styles = () => ({
-  '@global': {
+  "@global": {
     body: {
-      backgroundColor: '#fff'
-    }
+      backgroundColor: "#fff",
+    },
   },
   paper: {
     marginTop: 100,
-    display: 'flex',
+    display: "flex",
     padding: 20,
-    flexDirection: 'column',
-    alignItems: 'Center'
+    flexDirection: "column",
+    alignItems: "Center",
   },
   avatar: {
-    marginLeft: 'auto',
-    marginRight: 'auto',
-    backgroundColor: '#f50057'
+    marginLeft: "auto",
+    marginRight: "auto",
+    backgroundColor: "#f50057",
   },
   form: {
-    marginTop: 1
+    marginTop: 1,
   },
   errorText: {
-    color: '#f50057',
+    color: "#f50057",
     marginBottom: 5,
-    textAlign: 'center'
+    textAlign: "center",
   },
 });
 
 class Login extends Component {
-  state = { email: '', password: '' };
+  state = { email: "", password: "" };
 
   handleEmailChange = ({ target }) => {
     this.setState({ email: target.value });
@@ -60,66 +60,62 @@ class Login extends Component {
   };
 
   signup = () => {
-    this.props.history.push('/Signup')
-  }
+    this.props.history.push("/Signup");
+  };
 
   render() {
     const { classes, loginError, isAuthenticated } = this.props;
+
     if (isAuthenticated) {
-      return <Redirect to='/' />;
+      return <Redirect to="/" />;
     } else {
       return (
-        <Container component='main' maxWidth='xs'>
+        <Container component="main" maxWidth="xs">
           <Paper className={classes.paper}>
             <Avatar className={classes.avatar}>
               <LockOutlinedIcon />
             </Avatar>
-            <Typography component='h1' variant='h5'>
+            <Typography component="h1" variant="h5">
               Sign in
             </Typography>
             <TextField
-              variant='outlined'
-              margin='normal'
+              variant="outlined"
+              margin="normal"
               fullWidth
-              id='email'
-              label='Email Address'
-              name='email'
+              id="email"
+              label="Email Address"
+              name="email"
               onChange={this.handleEmailChange}
             />
             <TextField
-              variant='outlined'
-              margin='normal'
+              variant="outlined"
+              margin="normal"
               fullWidth
-              name='password'
-              label='Password'
-              type='password'
-              id='password'
+              name="password"
+              label="Password"
+              type="password"
+              id="password"
               onChange={this.handlePasswordChange}
             />
             {loginError && (
-              <Typography component='p' className={classes.errorText}>
+              <Typography component="p" className={classes.errorText}>
                 Incorrect email or password.
               </Typography>
             )}
             <Button
-              type='button'
+              type="submit"
               fullWidth
-              variant='contained'
-              color='primary'
+              variant="contained"
+              color="primary"
               className={classes.submit}
               onClick={this.handleSubmit}
             >
               Sign In
             </Button>
 
-            <Link
-            component="button"
-            variant="body2"
-            onClick={this.signup}
-            >
+            <Link component="button" variant="body2" onClick={this.signup}>
               Create an account
             </Link>
-
           </Paper>
         </Container>
       );
@@ -131,7 +127,7 @@ function mapStateToProps(state) {
   return {
     isLoggingIn: state.auth.isLoggingIn,
     loginError: state.auth.loginError,
-    isAuthenticated: state.auth.isAuthenticated
+    isAuthenticated: state.auth.isAuthenticated,
   };
 }
 

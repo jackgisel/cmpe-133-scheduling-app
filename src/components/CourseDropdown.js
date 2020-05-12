@@ -8,7 +8,6 @@ import {
   Button,
   makeStyles,
 } from "@material-ui/core";
-import randomHexColor from "random-hex-color";
 
 import { getDepartments, getCourses, getSections, addEvent } from "../actions/";
 
@@ -35,13 +34,15 @@ const CourseDropdown = () => {
   const departments = useSelector((state) => state.classes.departments);
   const courses = useSelector((state) => state.classes.courses);
   const sections = useSelector((state) => state.classes.sections);
+  const events = useSelector((state) => state.auth.user.events);
 
   const [selectedDepartment, setSelectedDepartment] = useState("");
   const [selectedCourse, setSelectedCourse] = useState("");
   const [selectedSection, setSelectedSection] = useState("");
+  const [selectedLab, setSelectedLab] = useState("");
+  const [hasLab, setHasLab] = useState(false);
 
-  function handleOnAddEvent() {
-    let section = sections.filter((sec) => sec.id === selectedSection)[0];
+  function checkConflict(section) {
     let startString = section["Start Time"].toString().split("");
     let start =
       startString.length === 3
@@ -51,26 +52,42 @@ const CourseDropdown = () => {
           ":" +
           startString[2] +
           startString[3];
+    let time = start.split(":");
+    let hours = parseInt(time[0]);
+    let minutes = parseInt(time[1]);
+    let total = hours * 60 + minutes;
+    let err = true;
+    events.forEach((event) => {
+      let time_s = event["startTime"].split(":");
+      let hours_s = parseInt(time_s[0]);
+      let minutes_s = parseInt(time_s[1]);
+      let total_s = hours_s * 60 + minutes_s;
 
-    let endString = section["End Time"].toString().split("");
-    let end =
-      endString.length === 3
-        ? "0" + endString[0] + ":" + endString[1] + endString[2]
-        : endString[0] + endString[1] + ":" + endString[2] + endString[3];
+      let time_e = event["endTime"].split(":");
+      let hours_e = parseInt(time_e[0]);
+      let minutes_e = parseInt(time_e[1]);
+      let total_e = hours_e * 60 + minutes_e;
 
-    let newEvent = {
-      ...section,
-      title: section.id,
-      daysOfWeek: JSON.parse(section["Daysofweek"]),
-      startTime: start,
-      endTime: end,
-      backgroundColor: randomHexColor(),
-    };
+      if (total >= total_s && total <= total_e) {
+        alert("oh lord, we gots a time conflict");
+        err = false;
+      }
+    });
+    return err;
+  }
 
-    dispatch(addEvent(newEvent));
+  function handleOnAddEvent() {
+    let section = sections.filter((sec) => sec.id === selectedSection)[0];
+    if (checkConflict(section)) dispatch(addEvent(section));
+    if (selectedLab) {
+      let lab = sections.filter((sec) => sec.id === selectedLab)[0];
+      if (checkConflict(lab)) dispatch(addEvent(lab));
+      setHasLab(false);
+    }
     setSelectedDepartment("");
     setSelectedCourse("");
     setSelectedSection("");
+    setSelectedLab("");
   }
 
   useEffect(() => {
@@ -85,6 +102,10 @@ const CourseDropdown = () => {
 
   useEffect(() => {
     if (selectedCourse) {
+      let course = courses.filter(
+        (course) => course.Course === selectedCourse
+      )[0];
+      if (course["hasLab"]) setHasLab(true);
       dispatch(getSections(selectedCourse));
     }
   }, [selectedCourse, dispatch]);
@@ -151,19 +172,59 @@ const CourseDropdown = () => {
           labelId="label3"
           id="select"
           value={selectedSection}
-          onChange={(event) => setSelectedSection(event.target.value)}
+          onChange={(event) => {
+            setSelectedSection(event.target.value);
+          }}
         >
           {sections?.map((section) => {
-            return (
-              <MenuItem key={section.id} value={section.id}>
-                {section["Section"]} {section["Instructor Fname"]}.
-                {section["Instructor Lname"]} {section["Start Time"]}-
-                {section["End Time"]}
-              </MenuItem>
-            );
+            if (section["Type"] !== "LAB" && section["Type"] !== "SEM") {
+              return (
+                <MenuItem key={section.id} value={section.id}>
+                  Section {section["Section"]}, {section["Type"]}, Day & Time:{" "}
+                  {section["Days"]} {section["Start Time"]}-
+                  {section["End Time"]}, Instructor:{" "}
+                  {section["Instructor Fname"]}.{section["Instructor Lname"]},
+                  Seats Available:{" "}
+                  {section["Total seats"] - section["Seats taken"]}
+                </MenuItem>
+              );
+            }
           })}
         </Select>
       </FormControl>
+
+      {hasLab && (
+        <FormControl
+          fullWidth
+          className={classes.formControl}
+          disabled={!hasLab}
+        >
+          <InputLabel id="label3">Select Lab Section</InputLabel>
+          <Select
+            labelId="label4"
+            id="select"
+            value={selectedLab}
+            onChange={(event) => {
+              setSelectedLab(event.target.value);
+            }}
+          >
+            {sections?.map((section) => {
+              if (section["Type"] === "LAB" || section["Type"] === "SEM") {
+                return (
+                  <MenuItem key={section.id} value={section.id}>
+                    Section {section["Section"]}, {section["Type"]}, Day & Time:{" "}
+                    {section["Days"]} {section["Start Time"]}-
+                    {section["End Time"]}, Instructor:{" "}
+                    {section["Instructor Fname"]}.{section["Instructor Lname"]},
+                    Seats Available:{" "}
+                    {section["Total seats"] - section["Seats taken"]}
+                  </MenuItem>
+                );
+              }
+            })}
+          </Select>
+        </FormControl>
+      )}
 
       <Button
         type="button"

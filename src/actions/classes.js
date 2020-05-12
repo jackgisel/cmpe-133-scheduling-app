@@ -1,4 +1,5 @@
 import { db } from "../firebase/firebase";
+import { addEvent, setErrors } from "./auth";
 
 export const FETCH_DEPARTMENT_REQUEST = "FETCH_DEPARTMENT_REQUEST";
 export const FETCH_DEPARTMENT_SUCCESS = "FETCH_DEPARTMENT_SUCCESS";
@@ -13,6 +14,7 @@ export const FETCH_SECTION_SUCCESS = "FETCH_SECTION_SUCCESS";
 export const FETCH_SECTION_FAILURE = "FETCH_SECTION_FAILURE";
 
 export const FETCHED_PROFESSOR = "FETCHED_PROFESSOR";
+export const FETCHED_COURSE_DETAILS = "FETCHED_COURSE_DETAILS";
 
 const fetchDepartments = () => {
   return {
@@ -78,6 +80,13 @@ const fetchedProfessor = (professors) => {
   return {
     type: FETCHED_PROFESSOR,
     professors,
+  };
+};
+
+const fetchedCourseDetails = (courseDetails) => {
+  return {
+    type: FETCHED_COURSE_DETAILS,
+    courseDetails,
   };
 };
 
@@ -161,4 +170,63 @@ export const fetchProfessor = (professorName) => async (dispatch) => {
     .catch((err) => {
       console.log(err);
     });
+};
+
+export const addClassByCode = (classCode) => async (dispatch) => {
+  await db
+    .collection("SJSU - Sections")
+    .where("Code", "==", +classCode)
+    .get()
+    .then((query) => {
+      if (query.empty) {
+        console.log("no documents found");
+        dispatch(setErrors("Course was not found. Please try a new one."));
+      }
+      query.forEach((doc) => {
+        dispatch(addEvent(doc.data()));
+      });
+    })
+    .catch((err) => console.log(err));
+};
+
+export const updateAverageCost = (classCode, cost) => async (dispatch) => {
+  await db
+    .collection("SJSU - Sections")
+    .where("Code", "==", +classCode)
+    .get()
+    .then((query) => {
+      if (query.empty) {
+        console.log("no documents found");
+      } else {
+        query.forEach((doc) => {
+          let newCost = cost;
+          if (doc.data().averageCost) {
+            newCost += doc.data().averageCost;
+            newCost = newCost / 2;
+          }
+          db.collection("SJSU - Sections")
+            .doc(doc.id)
+            .update({ averageCost: newCost });
+        });
+      }
+    })
+    .catch((err) => console.log(err));
+};
+
+export const getCourseDetails = (classCode) => async (dispatch) => {
+  console.log(classCode);
+  await db
+    .collection("SJSU - Sections")
+    .where("Code", "==", +classCode)
+    .get()
+    .then((query) => {
+      if (query.empty) {
+        console.log("no documents found");
+      } else {
+        query.forEach((doc) => {
+          dispatch(fetchedCourseDetails(doc.data()));
+        });
+      }
+    })
+    .catch((err) => console.log(err));
 };
