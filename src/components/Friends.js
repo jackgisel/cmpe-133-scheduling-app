@@ -57,7 +57,7 @@ const Friends = () => {
           friends.map((e) => {
             return (
               <ListItem
-                key={e.title}
+                key={e}
                 style={{
                   backgroundColor: "grey",
                   borderRadius: 5,

@@ -7,6 +7,7 @@ import MyCalendar from "./screens/MyCalendar";
 import MyCourses from "./screens/MyCourses";
 import MyEvents from "./screens/MyEvents";
 import MyFriends from "./screens/MyFriends";
+import MySchedules from "./screens/MySchedules";
 import Login from "./components/Login";
 import Signup from "./components/Signup";
 
@@ -54,6 +55,13 @@ function App(props) {
         exact
         path="/my-friends"
         component={MyFriends}
+        isAuthenticated={isAuthenticated}
+        isVerifying={isVerifying}
+      />
+      <ProtectedRoute
+        exact
+        path="/my-schedules"
+        component={MySchedules}
         isAuthenticated={isAuthenticated}
         isVerifying={isVerifying}
       />

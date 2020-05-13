@@ -1,8 +1,17 @@
-import React from "react";
-import { AppBar, Toolbar, Typography, Button } from "@material-ui/core";
+import React, { useState, useEffect } from "react";
+import {
+  AppBar,
+  Toolbar,
+  Typography,
+  Button,
+  Select,
+  FormControl,
+  MenuItem,
+  InputLabel,
+} from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
-import { connect } from "react-redux";
-import { logoutUser } from "../actions";
+import { connect, useDispatch, useSelector } from "react-redux";
+import { logoutUser, setSchedule } from "../actions";
 import { Link } from "react-router-dom";
 
 const useStyles = makeStyles((theme) => ({
@@ -15,15 +24,26 @@ const useStyles = makeStyles((theme) => ({
       color: "yellow",
     },
   },
+  formControl: {
+    flexGrow: 2,
+  },
 }));
 
 const Header = (props) => {
   const classes = useStyles();
-  const { dispatch } = props;
+  const dispatch = useDispatch();
+  const userSchedule = useSelector((state) => state.auth.user.schedule);
+  const userSchedules = useSelector((state) => state.auth.user.schedules);
+  const [selectedSchedule, setSelectedSchedule] = useState(userSchedule);
 
   const handleLogout = () => {
     dispatch(logoutUser());
   };
+
+  useEffect(() => {
+    console.log(userSchedule);
+    setSelectedSchedule(userSchedule);
+  }, [userSchedule]);
 
   return (
     <AppBar position="static">
@@ -31,6 +51,33 @@ const Header = (props) => {
         <Typography className={classes.title} variant="h6">
           All Schedule
         </Typography>
+        <FormControl
+          color="white"
+          variant="outlined"
+          className={classes.formControl}
+          style={{ color: "white" }}
+        >
+          <InputLabel id="demo-simple-select-label">
+            Select your Schedule
+          </InputLabel>
+          <Select
+            labelId="demo-simple-select-label"
+            id="demo-simple-select"
+            value={selectedSchedule}
+            onChange={(e) => {
+              dispatch(setSchedule(e.target.value));
+              setSelectedSchedule(e.target.value);
+            }}
+            style={{ color: "white" }}
+          >
+            {userSchedules &&
+              userSchedules.map((sched) => (
+                <MenuItem key={sched} value={sched}>
+                  {sched}
+                </MenuItem>
+              ))}
+          </Select>
+        </FormControl>
         <Button>
           <Link className={classes.headerButton} to="/my-calendar">
             Calendar
@@ -49,6 +96,11 @@ const Header = (props) => {
         <Button>
           <Link className={classes.headerButton} to="/my-friends">
             Friends
+          </Link>
+        </Button>
+        <Button>
+          <Link className={classes.headerButton} to="/my-schedules">
+            Schedules
           </Link>
         </Button>
         <Button onClick={handleLogout} color="inherit">

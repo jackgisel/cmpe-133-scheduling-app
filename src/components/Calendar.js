@@ -11,7 +11,10 @@ import "@fortawesome/fontawesome-free/css/all.css";
 import CourseModal from "../components/CourseModal";
 
 export default () => {
-  const { events } = useSelector((state) => state.auth.user);
+  let selectedSchedule = useSelector((state) => state.auth.user.schedule);
+  const events = useSelector((state) => state.auth.user.events).filter(
+    (event) => event.schedule === selectedSchedule
+  );
   const [showCourseModal, setShowCourseModal] = useState(false);
 
   return (

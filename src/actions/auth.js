@@ -21,6 +21,8 @@ export const ADDED_FRIEND = "ADDED_FRIEND";
 
 export const SET_ERRORS = "SET_ERRORS";
 export const BEGIN_REMOVE_EVENT = "BEGIN_REMOVE_EVENT";
+export const ADDED_SCHEDULE = "ADDED_SCHEDULE";
+export const SET_SCHEDULE = "SET_SCHEDULE";
 
 const requestLogin = () => {
   return {
@@ -108,6 +110,20 @@ export const setErrors = (errors) => {
   return {
     type: SET_ERRORS,
     errors,
+  };
+};
+
+export const addedSchedule = (scheduleName) => {
+  return {
+    type: ADDED_SCHEDULE,
+    scheduleName,
+  };
+};
+
+export const setSchedule = (scheduleName) => {
+  return {
+    type: SET_SCHEDULE,
+    scheduleName,
   };
 };
 
@@ -223,11 +239,13 @@ function prepareEvent(section) {
   };
 }
 
-export const addEvent = (section) => async (dispatch) => {
+export const addEvent = (section) => async (dispatch, getState) => {
   const email = myFirebase.auth().currentUser.email;
 
-  let event = section.isManual ? section : prepareEvent(section);
+  let schedule = getState().auth.user.schedule;
 
+  let event = section.isManual ? section : prepareEvent(section);
+  event = { ...event, schedule };
   console.log(section);
   db.collection("SJSU - Sections")
     .where("Code", "==", section.Code)
@@ -295,6 +313,28 @@ export const addFriend = (email) => async (dispatch) => {
             friends: firebase.firestore.FieldValue.arrayUnion(email),
           });
         dispatch(addedFriend(email));
+      });
+    })
+    .catch(function (error) {
+      console.log("Error getting documents: ", error);
+    });
+};
+
+export const addSchedule = (scheduleName) => async (dispatch) => {
+  const user = myFirebase.auth().currentUser.email;
+  await db
+    .collection("users")
+    .where("email", "==", user)
+    .get()
+    .then(function (querySnapshot) {
+      querySnapshot.forEach(function (doc) {
+        db.collection("users")
+          .doc(doc.id)
+          .update({
+            schedules: firebase.firestore.FieldValue.arrayUnion(scheduleName),
+          });
+        dispatch(addedSchedule(scheduleName));
+        dispatch(setSchedule(scheduleName));
       });
     })
     .catch(function (error) {

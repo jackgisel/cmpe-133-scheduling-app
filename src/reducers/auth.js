@@ -12,6 +12,8 @@ import {
   SET_ERRORS,
   BEGIN_REMOVE_EVENT,
   ADDED_FRIEND,
+  ADDED_SCHEDULE,
+  SET_SCHEDULE,
 } from "../actions/";
 
 export default (
@@ -27,6 +29,8 @@ export default (
       email: "",
       events: [],
       friends: [],
+      schedule: "",
+      schedules: [],
     },
   },
   action
@@ -88,6 +92,7 @@ export default (
       return {
         ...state,
         user: {
+          ...state.user,
           events: state.user.events.filter((e) => e.Code !== action.courseCode),
         },
       };
@@ -117,6 +122,24 @@ export default (
         user: {
           ...state.user,
           friends: [...state.user.friends, action.friend],
+        },
+      };
+    }
+    case ADDED_SCHEDULE: {
+      return {
+        ...state,
+        user: {
+          ...state.user,
+          schedules: [...state.user.schedules, action.scheduleName],
+        },
+      };
+    }
+    case SET_SCHEDULE: {
+      return {
+        ...state,
+        user: {
+          ...state.user,
+          schedule: action.scheduleName,
         },
       };
     }

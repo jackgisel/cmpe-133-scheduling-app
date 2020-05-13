@@ -22,9 +22,10 @@ const useStyles = makeStyles((theme) => ({
 
 const CourseList = () => {
   const classes = useStyles();
-  let events = useSelector((state) => state.auth.user.events).filter(
-    (e) => !e.isManual
-  );
+  let selectedSchedule = useSelector((state) => state.auth.user.schedule);
+  let events = useSelector((state) => state.auth.user.events)
+    .filter((e) => !e.isManual)
+    .filter((event) => event.schedule === selectedSchedule);
   const dispatch = useDispatch();
   const [showCourseModal, setShowCourseModal] = useState(false);
 
