@@ -11,6 +11,9 @@ const useStyles = makeStyles((theme) => ({
   },
   headerButton: {
     color: "white",
+    "&:hover": {
+      color: "yellow",
+    },
   },
 }));
 

@@ -17,6 +17,7 @@ export const VERIFY_SUCCESS = "VERIFY_SUCCESS";
 
 export const FOUND_USER = "FOUND_USER";
 export const ADDED_EVENT = "ADDED_EVENT";
+export const ADDED_FRIEND = "ADDED_FRIEND";
 
 export const SET_ERRORS = "SET_ERRORS";
 export const BEGIN_REMOVE_EVENT = "BEGIN_REMOVE_EVENT";
@@ -86,6 +87,13 @@ const addedEvent = (event) => {
   return {
     type: ADDED_EVENT,
     event,
+  };
+};
+
+const addedFriend = (friend) => {
+  return {
+    type: ADDED_FRIEND,
+    friend,
   };
 };
 
@@ -220,7 +228,22 @@ export const addEvent = (section) => async (dispatch) => {
 
   let event = section.isManual ? section : prepareEvent(section);
 
-  db.collection("users")
+  console.log(section);
+  db.collection("SJSU - Sections")
+    .where("Code", "==", section.Code)
+    .get()
+    .then((querySnapshot) => {
+      querySnapshot.forEach((doc) => {
+        db.collection("SJSU - Sections")
+          .doc(doc.id)
+          .update({
+            students: firebase.firestore.FieldValue.arrayUnion(email),
+          });
+      });
+    });
+
+  await db
+    .collection("users")
     .where("email", "==", email)
     .get()
     .then(function (querySnapshot) {
@@ -251,6 +274,27 @@ export const removeEvent = (courseCode) => async (dispatch) => {
               .data()
               .events.filter((event) => event.Code !== courseCode),
           });
+      });
+    })
+    .catch(function (error) {
+      console.log("Error getting documents: ", error);
+    });
+};
+
+export const addFriend = (email) => async (dispatch) => {
+  const user = myFirebase.auth().currentUser.email;
+  await db
+    .collection("users")
+    .where("email", "==", user)
+    .get()
+    .then(function (querySnapshot) {
+      querySnapshot.forEach(function (doc) {
+        db.collection("users")
+          .doc(doc.id)
+          .update({
+            friends: firebase.firestore.FieldValue.arrayUnion(email),
+          });
+        dispatch(addedFriend(email));
       });
     })
     .catch(function (error) {

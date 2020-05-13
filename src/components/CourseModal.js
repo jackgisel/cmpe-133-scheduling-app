@@ -18,6 +18,8 @@ const CourseModal = ({ isOpen, setIsOpen, section, onSurvey }) => {
   const [updatedSection, setUpdatedSection] = useState({});
   const dispatch = useDispatch();
   const courseDetails = useSelector((state) => state.classes.courseDetails);
+  const friends = useSelector((state) => state.auth.user.friends);
+
   const [showSurvey, setShowSurvey] = useState(false);
   const [showRMP, setShowRMP] = useState(false);
 
@@ -99,6 +101,17 @@ const CourseModal = ({ isOpen, setIsOpen, section, onSurvey }) => {
             {courseDetails["Corequisites"]
               ? courseDetails["Corequisites"]
               : "No data/Corequisites required for this course"}{" "}
+            <br></br>
+            <Box fontWeight="fontWeightBold" display="inline">
+              Friends:{" "}
+            </Box>{" "}
+            {console.log(friends)}
+            {console.log(courseDetails)}
+            {courseDetails &&
+              courseDetails.students &&
+              courseDetails.students
+                .filter((student) => friends.includes(student))
+                .map((student) => student)}
             <br></br>
             <Box ml={-0.5}>
               <Button

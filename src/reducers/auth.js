@@ -11,6 +11,7 @@ import {
   ADDED_EVENT,
   SET_ERRORS,
   BEGIN_REMOVE_EVENT,
+  ADDED_FRIEND,
 } from "../actions/";
 
 export default (
@@ -25,6 +26,7 @@ export default (
     user: {
       email: "",
       events: [],
+      friends: [],
     },
   },
   action
@@ -106,6 +108,15 @@ export default (
         user: {
           ...state.user,
           events: [...state.user?.events, action.event],
+        },
+      };
+    }
+    case ADDED_FRIEND: {
+      return {
+        ...state,
+        user: {
+          ...state.user,
+          friends: [...state.user.friends, action.friend],
         },
       };
     }

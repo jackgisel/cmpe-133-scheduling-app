@@ -38,7 +38,7 @@ export default () => {
           let section = events.filter(
             (event) => event.title === e.event.title
           )[0];
-          setShowCourseModal(section);
+          if (!section.isManual) setShowCourseModal(section);
         }}
       />
       {showCourseModal && (

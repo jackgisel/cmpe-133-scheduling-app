@@ -214,7 +214,6 @@ export const updateAverageCost = (classCode, cost) => async (dispatch) => {
 };
 
 export const getCourseDetails = (classCode) => async (dispatch) => {
-  console.log(classCode);
   await db
     .collection("SJSU - Sections")
     .where("Code", "==", +classCode)
