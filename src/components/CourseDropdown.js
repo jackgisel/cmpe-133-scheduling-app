@@ -94,6 +94,7 @@ const CourseDropdown = () => {
     setSelectedCourse("");
     setSelectedSection("");
     setSelectedLab("");
+    setHasLab(false);
   }
 
   useEffect(() => {
@@ -183,7 +184,7 @@ const CourseDropdown = () => {
           }}
         >
           {sections?.map((section) => {
-            if (section["Type"] !== "LAB" && section["Type"] !== "SEM") {
+            if (section["Type"] !== "LAB") {
               return (
                 <MenuItem key={section.id} value={section.id}>
                   Section {section["Section"]}, {section["Type"]}, Day & Time:{" "}
