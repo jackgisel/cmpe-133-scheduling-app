@@ -9,6 +9,7 @@ import {
   ListItemText,
 } from "@material-ui/core";
 import { useSelector, useDispatch } from "react-redux";
+import randomColor from "randomcolor";
 
 import { addFriend } from "../actions/";
 
@@ -59,7 +60,9 @@ const Friends = () => {
               <ListItem
                 key={e}
                 style={{
-                  backgroundColor: "grey",
+                  backgroundColor: randomColor({
+                    luminosity: "light",
+                  }),
                   borderRadius: 5,
                   margin: 10,
                 }}
