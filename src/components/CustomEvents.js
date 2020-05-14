@@ -55,9 +55,10 @@ const useStyles = makeStyles((theme) => ({
 const CustomEvents = () => {
   const classes = useStyles();
   const dispatch = useDispatch();
-  let events = useSelector((state) => state.auth.user.events).filter(
-    (e) => e.isManual
-  );
+  let selectedSchedule = useSelector((state) => state.auth.user.schedule);
+  let events = useSelector((state) => state.auth.user.events)
+    .filter((e) => e.isManual)
+    .filter((event) => event.schedule === selectedSchedule);
   const [selectedSDate, setSelectedSDate] = useState(new Date());
   const [selectedEDate, setSelectedEDate] = useState(new Date());
   const [IsRecurring, setIsRecurring] = useState(true);
@@ -72,8 +73,6 @@ const CustomEvents = () => {
     Friday: false,
   });
   const { Monday, Tuesday, Wednesday, Thursday, Friday } = DOW;
-
-  console.log(events);
 
   const clear = () => {
     setDOW({
@@ -109,14 +108,13 @@ const CustomEvents = () => {
     for (let i = 1; i < 7; i++) {
       if (DOW[Object.keys(DOW)[i]]) daysArray.push(i);
     }
-    console.log(JSON.stringify(daysArray));
 
     let newEvent = {
       isManual: true,
       startTime: format(selectedSDate, "kk:mm"),
       endTime: format(selectedEDate, "kk:mm"),
-      "Start Time": Number(format(selectedSDate, "kkmm")),
-      "End Time": Number(format(selectedEDate, "kkmm")),
+      "Start time": Number(format(selectedSDate, "kkmm")),
+      "End time": Number(format(selectedEDate, "kkmm")),
       daysOfWeek: JSON.stringify(daysArray),
       IsRecurring,
       title,
@@ -157,9 +155,7 @@ const CustomEvents = () => {
               >
                 <ListItemText
                   primary={`${e.title}`}
-                  secondary={`${convertFrom24To12Format(
-                    e["Start Time"]
-                  )}-${convertFrom24To12Format(e["End Time"])}`}
+                  secondary={`${e["Start time"]}-${e["End time"]}`}
                 />
                 <Button onClick={() => dispatch(removeEvent(e.Code))}>
                   Remove Class

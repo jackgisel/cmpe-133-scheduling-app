@@ -10,6 +10,7 @@ import {
   FETCH_SECTION_FAILURE,
   FETCHED_PROFESSOR,
   FETCHED_COURSE_DETAILS,
+  FETCHED_SECTION_DETAILS,
 } from "../actions";
 
 export default (
@@ -20,6 +21,7 @@ export default (
     sections: [],
     professors: [],
     courseDetails: {},
+    sectionDetails: {},
     error: undefined,
   },
   action
@@ -45,6 +47,11 @@ export default (
       return {
         ...state,
         courseDetails: action.courseDetails,
+      };
+    case FETCHED_SECTION_DETAILS:
+      return {
+        ...state,
+        sectionDetails: action.sectionDetails,
       };
     case FETCH_DEPARTMENT_SUCCESS:
       return {

@@ -29,20 +29,20 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const Header = (props) => {
+const Header = () => {
   const classes = useStyles();
   const dispatch = useDispatch();
+
   const userSchedule = useSelector((state) => state.auth.user.schedule);
   const userSchedules = useSelector((state) => state.auth.user.schedules);
-  const [selectedSchedule, setSelectedSchedule] = useState(userSchedule);
+  const [selectedSchedule, setSelectedSchedule] = useState("");
 
   const handleLogout = () => {
     dispatch(logoutUser());
   };
 
   useEffect(() => {
-    console.log(userSchedule);
-    setSelectedSchedule(userSchedule);
+    if (userSchedule) setSelectedSchedule(userSchedule);
   }, [userSchedule]);
 
   return (
@@ -52,7 +52,6 @@ const Header = (props) => {
           All Schedule
         </Typography>
         <FormControl
-          color="white"
           variant="outlined"
           className={classes.formControl}
           style={{ color: "white" }}
@@ -78,6 +77,7 @@ const Header = (props) => {
               ))}
           </Select>
         </FormControl>
+
         <Button>
           <Link className={classes.headerButton} to="/my-calendar">
             Calendar
@@ -101,6 +101,11 @@ const Header = (props) => {
         <Button>
           <Link className={classes.headerButton} to="/my-schedules">
             Schedules
+          </Link>
+        </Button>
+        <Button>
+          <Link className={classes.headerButton} to="/compare">
+            Compare
           </Link>
         </Button>
         <Button onClick={handleLogout} color="inherit">

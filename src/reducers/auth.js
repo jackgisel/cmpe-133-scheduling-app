@@ -29,8 +29,8 @@ export default (
       email: "",
       events: [],
       friends: [],
-      schedule: "",
-      schedules: [],
+      schedule: "Default",
+      schedules: ["Default", "Finals"],
     },
   },
   action
@@ -54,6 +54,7 @@ export default (
         user: {
           ...state.user,
           ...action.user,
+          schedules: [...state.user.schedules, ...action.user.schedules],
         },
       };
     case SET_ERRORS: {

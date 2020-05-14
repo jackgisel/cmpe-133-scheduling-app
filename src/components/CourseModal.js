@@ -10,22 +10,30 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 
 import { convertFrom24To12Format } from "../helpFunctions/helpers";
-import { getCourseDetails } from "../actions";
+import { getCourseDetails, getSectionDetails } from "../actions";
 import CourseSurvey from "./CourseSurvey";
 import RateMyProfessor from "./RateMyProfessor";
 
-const CourseModal = ({ isOpen, setIsOpen, section, onSurvey }) => {
-  const [updatedSection, setUpdatedSection] = useState({});
+const CourseModal = ({ isOpen, setIsOpen, section }) => {
   const dispatch = useDispatch();
   const courseDetails = useSelector((state) => state.classes.courseDetails);
+  const sectionDetails = useSelector((state) => state.classes.sectionDetails);
+
+  const coReqs = useSelector((state) => state.classes.courses);
   const friends = useSelector((state) => state.auth.user.friends);
 
   const [showSurvey, setShowSurvey] = useState(false);
   const [showRMP, setShowRMP] = useState(false);
 
   useEffect(() => {
-    dispatch(getCourseDetails(section.Code));
-  }, [updatedSection, dispatch]);
+    dispatch(getCourseDetails(section.Course));
+    dispatch(getSectionDetails(section.Code));
+  }, [dispatch, section.Code]);
+
+  useEffect(() => {
+    console.log(courseDetails);
+    console.log(sectionDetails);
+  }, [courseDetails, sectionDetails]);
 
   return (
     <Dialog
@@ -78,7 +86,10 @@ const CourseModal = ({ isOpen, setIsOpen, section, onSurvey }) => {
             <Box fontWeight="fontWeightBold" display="inline">
               Average Cost:{" "}
             </Box>{" "}
-            ${courseDetails.averageCost} <br></br>
+            {courseDetails.averageCost
+              ? `$${courseDetails.averageCost}`
+              : "Not available right now"}{" "}
+            <br></br>
           </Box>
           <Box p={0.5}>
             <Box fontWeight="fontWeightBold">Days, Time, Location: </Box>{" "}
@@ -98,6 +109,7 @@ const CourseModal = ({ isOpen, setIsOpen, section, onSurvey }) => {
             <Box fontWeight="fontWeightBold" display="inline">
               Corequisites:{" "}
             </Box>{" "}
+            {console.log(coReqs)}
             {courseDetails["Corequisites"]
               ? courseDetails["Corequisites"]
               : "No data/Corequisites required for this course"}{" "}
@@ -105,11 +117,9 @@ const CourseModal = ({ isOpen, setIsOpen, section, onSurvey }) => {
             <Box fontWeight="fontWeightBold" display="inline">
               Friends:{" "}
             </Box>{" "}
-            {console.log(friends)}
-            {console.log(courseDetails)}
-            {courseDetails &&
-              courseDetails.students &&
-              courseDetails.students
+            {sectionDetails &&
+              sectionDetails.students &&
+              sectionDetails.students
                 .filter((student) => friends.includes(student))
                 .map((student) => student)}
             <br></br>

@@ -9,7 +9,13 @@ import {
   makeStyles,
 } from "@material-ui/core";
 
-import { getDepartments, getCourses, getSections, addEvent } from "../actions/";
+import {
+  getDepartments,
+  getCourses,
+  getSections,
+  addEvent,
+  setErrors,
+} from "../actions/";
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -69,7 +75,7 @@ const CourseDropdown = () => {
       let total_e = hours_e * 60 + minutes_e;
 
       if (total >= total_s && total <= total_e) {
-        alert("oh lord, we gots a time conflict");
+        dispatch(setErrors("Can not add class, there is a time conflict"));
         err = false;
       }
     });
@@ -108,7 +114,7 @@ const CourseDropdown = () => {
       if (course["hasLab"]) setHasLab(true);
       dispatch(getSections(selectedCourse));
     }
-  }, [selectedCourse, dispatch]);
+  }, [courses, selectedCourse, dispatch]);
 
   return (
     <div className={classes.padded}>

@@ -15,6 +15,7 @@ export const FETCH_SECTION_FAILURE = "FETCH_SECTION_FAILURE";
 
 export const FETCHED_PROFESSOR = "FETCHED_PROFESSOR";
 export const FETCHED_COURSE_DETAILS = "FETCHED_COURSE_DETAILS";
+export const FETCHED_SECTION_DETAILS = "FETCHED_SECTION_DETAILS";
 
 const fetchDepartments = () => {
   return {
@@ -87,6 +88,13 @@ const fetchedCourseDetails = (courseDetails) => {
   return {
     type: FETCHED_COURSE_DETAILS,
     courseDetails,
+  };
+};
+
+const fetchedSectionDetails = (sectionDetails) => {
+  return {
+    type: FETCHED_SECTION_DETAILS,
+    sectionDetails,
   };
 };
 
@@ -214,6 +222,24 @@ export const updateAverageCost = (classCode, cost) => async (dispatch) => {
 };
 
 export const getCourseDetails = (classCode) => async (dispatch) => {
+  console.log(classCode);
+  await db
+    .collection("SJSU - Courses")
+    .where("Course", "==", classCode)
+    .get()
+    .then((query) => {
+      if (query.empty) {
+        console.log("no documents found");
+      } else {
+        query.forEach((doc) => {
+          dispatch(fetchedCourseDetails(doc.data()));
+        });
+      }
+    })
+    .catch((err) => console.log(err));
+};
+
+export const getSectionDetails = (classCode) => async (dispatch) => {
   await db
     .collection("SJSU - Sections")
     .where("Code", "==", +classCode)
@@ -223,7 +249,7 @@ export const getCourseDetails = (classCode) => async (dispatch) => {
         console.log("no documents found");
       } else {
         query.forEach((doc) => {
-          dispatch(fetchedCourseDetails(doc.data()));
+          dispatch(fetchedSectionDetails(doc.data()));
         });
       }
     })

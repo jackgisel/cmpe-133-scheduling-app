@@ -53,7 +53,7 @@ const RateMyProfessor = ({ showRMP, hideRMP, lastName }) => {
 
   useEffect(() => {
     dispatch(fetchProfessor(lastName));
-  }, [dispatch]);
+  }, [dispatch, lastName]);
 
   return (
     <Dialog
