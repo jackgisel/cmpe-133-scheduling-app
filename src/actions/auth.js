@@ -539,7 +539,11 @@ export const addEvent = (section) => async (dispatch, getState) => {
 
   let events = getState().auth.user.events;
 
-  if (events.some((event) => event.Code === section.Code)) {
+  if (
+    events
+      .filter((e) => e.schedule === schedule)
+      .some((event) => event.Code === section.Code)
+  ) {
     dispatch(setErrors("You already have this course added!"));
   } else {
     if (!section.isManual) {
