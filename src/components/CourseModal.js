@@ -121,7 +121,12 @@ const CourseModal = ({ isOpen, setIsOpen, section }) => {
               sectionDetails.students &&
               sectionDetails.students
                 .filter((student) => friends.includes(student))
-                .map((student) => student)}
+                .map((student) => (
+                  <div>
+                    {student}
+                    <br></br>
+                  </div>
+                ))}
             <br></br>
             <Box ml={-0.5}>
               <Button
