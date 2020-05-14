@@ -41,6 +41,7 @@ const CourseDropdown = () => {
   const courses = useSelector((state) => state.classes.courses);
   const sections = useSelector((state) => state.classes.sections);
   const events = useSelector((state) => state.auth.user.events);
+  const selectedSechedule = useSelector((state) => state.auth.user.schedule);
 
   const [selectedDepartment, setSelectedDepartment] = useState("");
   const [selectedCourse, setSelectedCourse] = useState("");
@@ -63,22 +64,24 @@ const CourseDropdown = () => {
     let minutes = parseInt(time[1]);
     let total = hours * 60 + minutes;
     let err = true;
-    events.forEach((event) => {
-      let time_s = event["startTime"].split(":");
-      let hours_s = parseInt(time_s[0]);
-      let minutes_s = parseInt(time_s[1]);
-      let total_s = hours_s * 60 + minutes_s;
+    events
+      .filter((e) => e.schedule === selectedSechedule)
+      .forEach((event) => {
+        let time_s = event["startTime"].split(":");
+        let hours_s = parseInt(time_s[0]);
+        let minutes_s = parseInt(time_s[1]);
+        let total_s = hours_s * 60 + minutes_s;
 
-      let time_e = event["endTime"].split(":");
-      let hours_e = parseInt(time_e[0]);
-      let minutes_e = parseInt(time_e[1]);
-      let total_e = hours_e * 60 + minutes_e;
+        let time_e = event["endTime"].split(":");
+        let hours_e = parseInt(time_e[0]);
+        let minutes_e = parseInt(time_e[1]);
+        let total_e = hours_e * 60 + minutes_e;
 
-      if (total >= total_s && total <= total_e) {
-        dispatch(setErrors("Can not add class, there is a time conflict"));
-        err = false;
-      }
-    });
+        if (total >= total_s && total <= total_e) {
+          dispatch(setErrors("Can not add class, there is a time conflict"));
+          err = false;
+        }
+      });
     return err;
   }
 
