@@ -1,10 +1,10 @@
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
 ### To run locally: 
-Step 1: Clone github respository 
-Step 2: Install npm https://phoenixnap.com/kb/install-node-js-npm-on-windows
-Step 3: Go into project directory and install by yarn by running "yarn install" 
-Step 4: Run "yarn start". Application will run on localhost
+Step 1: Clone github respository <br />
+Step 2: Install npm https://phoenixnap.com/kb/install-node-js-npm-on-windows <br />
+Step 3: Go into project directory and install by yarn by running "yarn install" <br />
+Step 4: Run "yarn start". Application will run on localhost <br />
 
 ### To run by web link
 Go to https://all-scheduler-1a96c.web.app/
