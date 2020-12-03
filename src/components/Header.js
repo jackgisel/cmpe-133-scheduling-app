@@ -7,7 +7,7 @@ import {
   Select,
   FormControl,
   MenuItem,
-  InputLabel,
+  Box,
 } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import { connect, useDispatch, useSelector } from "react-redux";
@@ -29,7 +29,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const Header = () => {
+const Header = ({ handleThemeChange }) => {
   const classes = useStyles();
   const dispatch = useDispatch();
 
@@ -49,38 +49,37 @@ const Header = () => {
     <AppBar position="static">
       <Toolbar>
         <Typography className={classes.title} variant="h6">
-          All Schedule
+          AllScheduler
         </Typography>
-        <FormControl
-          variant="outlined"
-          className={classes.formControl}
-          style={{ color: "white" }}
-        >
-          <InputLabel id="demo-simple-select-label">
-            Select your Schedule
-          </InputLabel>
-          <Select
-            labelId="demo-simple-select-label"
-            id="demo-simple-select"
-            value={selectedSchedule}
-            onChange={(e) => {
-              dispatch(setSchedule(e.target.value));
-              setSelectedSchedule(e.target.value);
-            }}
-            style={{ color: "white" }}
-          >
-            {userSchedules &&
-              userSchedules.map((sched) => (
-                <MenuItem key={sched} value={sched}>
-                  {sched}
-                </MenuItem>
-              ))}
-          </Select>
-        </FormControl>
+        <Box>
+          <FormControl className={classes.formControl}>
+            <Select
+              labelId="demo-simple-select-label"
+              id="demo-simple-select"
+              value={selectedSchedule}
+              onChange={(e) => {
+                dispatch(setSchedule(e.target.value));
+                setSelectedSchedule(e.target.value);
+              }}
+            >
+              {userSchedules &&
+                userSchedules.map((sched) => (
+                  <MenuItem key={sched} value={sched} color="white">
+                    {sched}
+                  </MenuItem>
+                ))}
+            </Select>
+          </FormControl>
+        </Box>
 
         <Button>
           <Link className={classes.headerButton} to="/my-calendar">
             Calendar
+          </Link>
+        </Button>
+        <Button>
+          <Link className={classes.headerButton} to="/my-progress">
+            Progress
           </Link>
         </Button>
         <Button>
@@ -111,6 +110,9 @@ const Header = () => {
         <Button onClick={handleLogout} color="inherit">
           Logout
         </Button>
+        {/* <Button onClick={handleThemeChange}>
+          <Brightness2Icon color="action" />
+        </Button> */}
       </Toolbar>
     </AppBar>
   );

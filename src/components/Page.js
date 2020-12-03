@@ -1,16 +1,16 @@
 import React from "react";
 import { useSelector, useDispatch } from "react-redux";
-import Header from "../components/Header";
-import { Container } from "@material-ui/core";
+import { Box, Container } from "@material-ui/core";
 import Alert from "@material-ui/lab/Alert";
 
 import { setErrors } from "../actions/";
+import Header from "./Header";
 
 const Page = (props) => {
   let errors = useSelector((state) => state.auth.errors);
   const dispatch = useDispatch();
   return (
-    <div>
+    <Box color="text.primary">
       <Header />
       <br></br>
       {errors && (
@@ -24,8 +24,8 @@ const Page = (props) => {
         </Alert>
       )}
       <br></br>
-      <Container maxWidth="md">{props.children}</Container>
-    </div>
+      <Container maxWidth="lg">{props.children}</Container>
+    </Box>
   );
 };
 

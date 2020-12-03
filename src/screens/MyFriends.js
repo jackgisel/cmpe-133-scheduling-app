@@ -2,9 +2,9 @@ import React from "react";
 import Page from "../components/Page";
 import Friends from "../components/Friends";
 
-const MyFriends = () => {
+const MyFriends = ({ handleThemeChange }) => {
   return (
-    <Page>
+    <Page {...{ handleThemeChange }}>
       <Friends />
     </Page>
   );

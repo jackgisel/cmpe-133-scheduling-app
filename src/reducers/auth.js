@@ -14,6 +14,11 @@ import {
   ADDED_FRIEND,
   ADDED_SCHEDULE,
   SET_SCHEDULE,
+  REMOVED_SCHEDULE,
+  ADDED_COURSES,
+  UPDATED_COURSES,
+  REMOVED_COURSE,
+  REMOVED_FRIEND,
 } from "../actions/";
 
 export default (
@@ -31,6 +36,7 @@ export default (
       friends: [],
       schedule: "Default",
       schedules: ["Default", "Finals"],
+      courses: [],
     },
   },
   action
@@ -54,7 +60,12 @@ export default (
         user: {
           ...state.user,
           ...action.user,
-          schedules: [...state.user.schedules, ...action.user.schedules],
+          schedules: [
+            ...state.user.schedules,
+            ...(action.user.schedules || []),
+          ],
+          events: [...state.user.events, ...(action.user.events || [])],
+          friends: [...state.user.friends, ...(action.user.friends || [])],
         },
       };
     case SET_ERRORS: {
@@ -126,12 +137,59 @@ export default (
         },
       };
     }
+    case REMOVED_FRIEND: {
+      return {
+        ...state,
+        user: {
+          ...state.user,
+          friends: state.user.friends.filter((f) => f !== action.friend),
+        },
+      };
+    }
     case ADDED_SCHEDULE: {
       return {
         ...state,
         user: {
           ...state.user,
           schedules: [...state.user.schedules, action.scheduleName],
+        },
+      };
+    }
+    case REMOVED_SCHEDULE: {
+      return {
+        ...state,
+        user: {
+          ...state.user,
+          schedules: state.user.schedules.filter(
+            (e) => e !== action.scheduleName
+          ),
+        },
+      };
+    }
+    case REMOVED_COURSE: {
+      return {
+        ...state,
+        user: {
+          ...state.user,
+          courses: state.user.courses.filter((e) => e.id !== action.courseId),
+        },
+      };
+    }
+    case ADDED_COURSES: {
+      return {
+        ...state,
+        user: {
+          ...state.user,
+          courses: [...state.user.courses, ...action.courseList],
+        },
+      };
+    }
+    case UPDATED_COURSES: {
+      return {
+        ...state,
+        user: {
+          ...state.user,
+          courses: action.courseList,
         },
       };
     }

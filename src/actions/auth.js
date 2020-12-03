@@ -22,7 +22,12 @@ export const ADDED_FRIEND = "ADDED_FRIEND";
 export const SET_ERRORS = "SET_ERRORS";
 export const BEGIN_REMOVE_EVENT = "BEGIN_REMOVE_EVENT";
 export const ADDED_SCHEDULE = "ADDED_SCHEDULE";
+export const REMOVED_SCHEDULE = "REMOVED_SCHEDULE";
 export const SET_SCHEDULE = "SET_SCHEDULE";
+export const ADDED_COURSES = "ADDED_COURSES";
+export const UPDATED_COURSES = "UPDATED_COURSES";
+export const REMOVED_COURSE = "REMOVED_COURSE";
+export const REMOVED_FRIEND = "REMOVED_FRIEND";
 
 const requestLogin = () => {
   return {
@@ -99,6 +104,13 @@ const addedFriend = (friend) => {
   };
 };
 
+const removedFriend = (friend) => {
+  return {
+    type: REMOVED_FRIEND,
+    friend,
+  };
+};
+
 const beginRemoveEvent = (courseCode) => {
   return {
     type: BEGIN_REMOVE_EVENT,
@@ -117,6 +129,34 @@ export const addedSchedule = (scheduleName) => {
   return {
     type: ADDED_SCHEDULE,
     scheduleName,
+  };
+};
+
+export const removedSchedule = (scheduleName) => {
+  return {
+    type: REMOVED_SCHEDULE,
+    scheduleName,
+  };
+};
+
+export const removedCourse = (courseId) => {
+  return {
+    type: REMOVED_COURSE,
+    courseId,
+  };
+};
+
+export const addedCourses = (courseList) => {
+  return {
+    type: ADDED_COURSES,
+    courseList,
+  };
+};
+
+export const updatedCourses = (courseList) => {
+  return {
+    type: UPDATED_COURSES,
+    courseList,
   };
 };
 
@@ -489,7 +529,6 @@ export const checkFinal = (section) => (dispatch) => {
     // dont care about thrse edge cases
   }
 
-  console.log("Date: ", date, " Time: ", startingTime);
   if (date.length > 1) {
     const email = myFirebase.auth().currentUser.email;
 
@@ -497,9 +536,8 @@ export const checkFinal = (section) => (dispatch) => {
       isManual: true,
       id: `final:${section.Code}`,
       title: `Final for ${section.Course}`,
-
-      ["Start time"]: startingTime,
-      ["End time"]: endingTime,
+      "Start time": startingTime,
+      "End time": endingTime,
       start: date + "T" + startingTime,
       end: date + "T" + endingTime,
       isRecurring: false,
@@ -510,8 +548,6 @@ export const checkFinal = (section) => (dispatch) => {
       }),
     };
 
-    console.log(newEvent);
-    // dispatch addEvent for final
     db.collection("users")
       .where("email", "==", email)
       .get()
@@ -629,6 +665,27 @@ export const addFriend = (email) => async (dispatch) => {
     });
 };
 
+export const deleteFriend = (email) => async (dispatch) => {
+  const user = myFirebase.auth().currentUser.email;
+  await db
+    .collection("users")
+    .where("email", "==", user)
+    .get()
+    .then(function (querySnapshot) {
+      querySnapshot.forEach(function (doc) {
+        db.collection("users")
+          .doc(doc.id)
+          .update({
+            friends: firebase.firestore.FieldValue.arrayRemove(email),
+          });
+        dispatch(removedFriend(email));
+      });
+    })
+    .catch(function (error) {
+      console.log("Error getting documents: ", error);
+    });
+};
+
 export const addSchedule = (scheduleName) => async (dispatch) => {
   const user = myFirebase.auth().currentUser.email;
   await db
@@ -648,5 +705,90 @@ export const addSchedule = (scheduleName) => async (dispatch) => {
     })
     .catch(function (error) {
       console.log("Error getting documents: ", error);
+    });
+};
+
+export const removeSchedule = (scheduleName) => async (dispatch) => {
+  const user = myFirebase.auth().currentUser.email;
+  await db
+    .collection("users")
+    .where("email", "==", user)
+    .get()
+    .then((snap) => {
+      snap.forEach((doc) => {
+        db.collection("users")
+          .doc(doc.id)
+          .update({
+            schedules: firebase.firestore.FieldValue.arrayRemove(scheduleName),
+          });
+        dispatch(removedSchedule(scheduleName));
+      });
+    });
+};
+
+export const addCourses = (courseList) => async (dispatch) => {
+  const user = myFirebase.auth().currentUser.email;
+  await db
+    .collection("users")
+    .where("email", "==", user)
+    .get()
+    .then((snap) => {
+      snap.forEach((doc) => {
+        const oldCourses = doc.data().courses || [];
+        db.collection("users")
+          .doc(doc.id)
+          .update({
+            courses: [...oldCourses, ...courseList],
+          });
+        dispatch(addedCourses(courseList));
+      });
+    });
+};
+
+export const updateCourse = (courseId, haveTaken) => async (dispatch) => {
+  const user = myFirebase.auth().currentUser.email;
+  await db
+    .collection("users")
+    .where("email", "==", user)
+    .get()
+    .then((snap) => {
+      snap.forEach((doc) => {
+        const oldCourses = doc.data().courses || [];
+        const updatedCourse = oldCourses.find(
+          (course) => course.id === courseId
+        );
+        if (updatedCourse) {
+          updatedCourse.haveTaken = haveTaken;
+          db.collection("users").doc(doc.id).update({
+            courses: oldCourses,
+          });
+          dispatch(updatedCourses(oldCourses));
+        }
+      });
+    });
+};
+
+export const removeCourse = (courseId) => async (dispatch) => {
+  console.log(
+    "🚀 ~ file: auth.js ~ line 743 ~ removeCourse ~ courseId",
+    courseId
+  );
+  const user = myFirebase.auth().currentUser.email;
+  await db
+    .collection("users")
+    .where("email", "==", user)
+    .get()
+    .then((snap) => {
+      snap.forEach((doc) => {
+        const oldCourses = doc.data().courses || [];
+
+        db.collection("users")
+          .doc(doc.id)
+          .update({
+            courses: oldCourses.filter((course) => course.id !== courseId),
+          });
+
+        dispatch(removedCourse(courseId));
+      });
     });
 };

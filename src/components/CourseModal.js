@@ -28,7 +28,7 @@ const CourseModal = ({ isOpen, setIsOpen, section }) => {
   useEffect(() => {
     dispatch(getCourseDetails(section.Course));
     dispatch(getSectionDetails(section.Code));
-  }, [dispatch, section.Code]);
+  }, [dispatch, section.Code, section.Course]);
 
   useEffect(() => {
     console.log(courseDetails);

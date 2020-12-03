@@ -2,9 +2,9 @@ import React from "react";
 import Page from "../components/Page";
 import CustomEvents from "../components/CustomEvents";
 
-const MyEvents = () => {
+const MyEvents = ({ handleThemeChange }) => {
   return (
-    <Page>
+    <Page {...{ handleThemeChange }}>
       <CustomEvents />
     </Page>
   );

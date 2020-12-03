@@ -199,6 +199,7 @@ const CourseDropdown = () => {
                 </MenuItem>
               );
             }
+            return null;
           })}
         </Select>
       </FormControl>
@@ -231,6 +232,7 @@ const CourseDropdown = () => {
                   </MenuItem>
                 );
               }
+              return null;
             })}
           </Select>
         </FormControl>
